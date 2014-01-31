@@ -403,8 +403,7 @@ function keyup() {
 // app starts here
 svg.on('mousedown', mousedown)
   .on('mousemove', mousemove)
-  .on('mouseup', mouseup);
-d3.select(window)
+  .on('mouseup', mouseup)
   .on('keydown', keydown)
   .on('keyup', keyup);
 restart();
