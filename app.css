@@ -28,16 +28,21 @@ svg:not(.active):not(.ctrl) path.link {
   cursor: pointer;
 }
 
-path.link.selected {
+path.selected.link {
   stroke-dasharray: 10,2;
 }
 
-path.link.dragline {
+.link path.dragline.link {
   pointer-events: none;
 }
 
-path.link.hidden {
+path.hidden.link {
   stroke-width: 0;
+}
+
+.edge text {
+  text-anchor: middle;
+  dominant-baseline: hanging;
 }
 
 circle.node {
@@ -59,3 +64,5 @@ text.id {
   text-anchor: middle;
   font-weight: bold;
 }
+
+
