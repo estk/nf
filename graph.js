@@ -7,57 +7,65 @@
 var margin = {top: 20, right: 10, bottom: 20, left: 10};
 var width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
-    colors = d3.scale.category10();
-
-var percentile = width/10
+    colors = d3.scale.category10(),
+    percentile = width/10;
 
 var textBox = d3.select('body').append('textarea');
 
 
-// textBox.on('keydown', function() {
-//   d3.event.stopPropagation();
-//   if (d3.event.keyCode === 13) {
-//     d3.event.preventDefault();
-//
-//     if (this.value === "") {
-//       alert("No name!");
-//       return;
-//     } else if (!selected_node && !selected_link) {
-//       alert("Please select a link or node to name.");
-//     }
-//
-//     if (selected_node) {
-//       if (this.value.length > 2) {
-//         alert("Max length === 2")
-//         this.value = "";
-//         return;
-//       }
-//       selected_node.name = this.value;
-//     } else if (selected_link) {
-//       var newCap;
-//       if (this.value === 'inf' || this.value === 'Infinity') {
-//         newCap = parseFloat('Infinity');
-//         selected_link.capacity = newCap;
-//       }
-//       else if (!(newCap = parseInt(this.value)) && isNaN(newCap)) {
-//         alert("Please enter a number");
-//       }
-//       else {
-//       selected_link.capacity = newCap;
-//       }
-//     }
-//     restart();
-//     this.value = "";
-//   }
-// });
-// d3.select('body').call(d3.keybinding().on('⇧+⌫', function() {debugger;}));
-d3.select('body').onKey('⇧+⌫', function () {debugger;});
+textBox.on('keydown', function() {
+  function setName(n, v) {
+    n.name = v;
+    restart();
+  };
+  function setCapacity(e, v) {
+    e.capacity = v;
+    restart();
+  };
+
+  d3.event.stopPropagation();
+  if (d3.event.keyCode === 13) {
+    d3.event.preventDefault();
+
+    // Empty
+    if (this.value === "") {
+      alert("No name!");
+      return;
+
+    // Nothing selected
+    } else if (!selected_node && !selected_link) {
+      alert("Please select a link or node to name.");
+    }
+
+    // Changing Node Name
+    if (selected_node) {
+      if (this.value.length > 2) {
+        alert("Need Length <= 2");
+      }
+      else {
+        setName(selected_node, this.value)
+      }
+
+    // Changing Edge Capacity
+    } else if (selected_link) {
+      var newCap = parseInt(this.value);
+      if (isNaN(newCap)) {
+        alert("Please enter a number");
+      }
+      else {
+        setCapacity(selected_link, newCap);
+      }
+    }
+    // Clear textbox
+    this.value = "";
+  }
+});
+d3.select(window).onKey('⇧+⌫', function () {debugger;});
 
 var svg = d3.select('body')
   .append('svg')
   .attr('width', width)
   .attr('height', height);
-
 
 // set up initial nodes and links
 //  - nodes are known by 'id', not by index in array.
@@ -92,6 +100,7 @@ var force = d3.layout.force()
     .on('tick', tick);
 
 function chargeF (d) {
+  // Source and sink should have more charge
   if (d.name === 's' || d.name === 't') {
     return -2000;
   }
@@ -143,6 +152,7 @@ var drag = force.drag()
   .on("drag", dragmove);
       
 function dragmove(d) {
+  // Dont move source, and sink
   if (d.name === 's' || d.name === 't') {
     d.px = d.x;
     d.py = d.y;
@@ -402,74 +412,69 @@ function spliceLinksForNode(node) {
 var lastKeyDown = -1;
 
 function keydown() {
-  console.log("in keydown")
-  d3.event.preventDefault();
+  // if(lastKeyDown !== -1) return;
+  // lastKeyDown = d3.event.keyCode;
 
-  if(lastKeyDown !== -1) return;
-  lastKeyDown = d3.event.keyCode;
-
-  // ctrl
   if(d3.event.altKey) {
-    console.log('dragging')
     circle.call(drag);
-    svg.classed('ctrl', true);
-  }
-
-  if(!selected_node && !selected_link) return;
-  switch(d3.event.keyCode) {
-    case 8: // backspace
-    case 46: // delete
-      if(selected_node) {
-        nodes.splice(nodes.indexOf(selected_node), 1);
-        spliceLinksForNode(selected_node);
-      } else if(selected_link) {
-        links.splice(links.indexOf(selected_link), 1);
-      }
-      selected_link = null;
-      selected_node = null;
-      restart();
-      break;
-    case 66: // B
-      if(selected_link) {
-        // set link direction to both left and right
-        selected_link.left = true;
-        selected_link.right = true;
-      }
-      restart();
-      break;
-    case 76: // L
-      if(selected_link) {
-        // set link direction to left only
-        selected_link.left = true;
-        selected_link.right = false;
-      }
-      restart();
-      break;
-    case 82: // R
-      if(selected_node) {
-        // toggle node reflexivity
-        selected_node.reflexive = !selected_node.reflexive;
-      } else if(selected_link) {
-        // set link direction to right only
-        selected_link.left = false;
-        selected_link.right = true;
-      }
-      restart();
-      break;
+    svg.classed('drag', true);
   }
 }
-
 function keyup() {
-  console.log("in keyup")
-  lastKeyDown = -1;
+  // lastKeyDown = -1;
 
-  // ctrl
   if(d3.event.altKey) {
-    console.log('undragging')
     circle
       .on('mousedown.drag', null)
       .on('touchstart.drag', null);
-    svg.classed('ctrl', false);
+    svg.classed('drag', false);
   }
 }
 
+// Window keymap dispatch functions.
+function rKey() {
+  if(selected_node) {
+    // toggle node reflexivity
+    selected_node.reflexive = !selected_node.reflexive;
+  } else if(selected_link) {
+    // set link direction to right only
+    selected_link.left = false;
+    selected_link.right = true;
+  }
+  restart();
+}
+function lKey() {
+  if(selected_link) {
+    // set link direction to left only
+    selected_link.left = true;
+    selected_link.right = false;
+  }
+  restart();
+}
+function bKey() {
+  if(selected_link) {
+    // set link direction to both left and right
+    selected_link.left = true;
+    selected_link.right = true;
+  }
+  restart();
+}
+function rmObj() {
+  // Backspace should not navigate back
+  d3.event.preventDefault();
+
+  if(selected_node) {
+    nodes.splice(nodes.indexOf(selected_node), 1);
+    spliceLinksForNode(selected_node);
+  } else if(selected_link) {
+    links.splice(links.indexOf(selected_link), 1);
+  }
+  selected_link = null;
+  selected_node = null;
+  restart();
+}
+var win = d3.select(window)
+    .onKey('⌫/⌦', rmObj)
+    .onKey('b', bKey)
+    .onKey('l', lKey)
+    .onKey('r', rKey);

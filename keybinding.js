@@ -1,6 +1,7 @@
 (function() {
   d3.selection.prototype.onKey = function(keyString, cb) {
-    return this.call(d3.keybinding().on(keyString, cb));
+    var keybinding = d3.keybinding.apply(this);
+    return this.call(keybinding.on(keyString, cb));
   };
 })();
 
@@ -14,7 +15,8 @@
  *
  */
 d3.keybinding = function(namespace) {
-    var bindings = [];
+    this.bindings = this.bindings || [];
+    var bindings = this.bindings;
 
     function matches(binding, event) {
         for (var p in binding.event) {
@@ -57,32 +59,37 @@ d3.keybinding = function(namespace) {
     };
 
     keybinding.on = function(code, callback, capture) {
-        var binding = {
-            event: {
-                keyCode: 0,
-                shiftKey: false,
-                ctrlKey: false,
-                altKey: false,
-                metaKey: false
-            },
-            capture: capture,
-            callback: callback
-        };
+        var codes = code.toLowerCase().split('/');
 
-        code = code.toLowerCase().match(/(?:(?:[^+])+|\+\+|^\+$)/g);
+        codes.forEach(function(code) {
+          var binding = {
+              event: {
+                  keyCode: 0,
+                  shiftKey: false,
+                  ctrlKey: false,
+                  altKey: false,
+                  metaKey: false
+              },
+              capture: capture,
+              callback: callback
+          };
 
-        for (var i = 0; i < code.length; i++) {
-            // Normalise matching errors
-            if (code[i] === '++') code[i] = '+';
+          code = code.match(/(?:(?:[^+])+|\+\+|^\+$)/g);
+          console.log(code);
 
-            if (code[i] in d3.keybinding.modifierCodes) {
-                binding.event[d3.keybinding.modifierProperties[d3.keybinding.modifierCodes[code[i]]]] = true;
-            } else if (code[i] in d3.keybinding.keyCodes) {
-                binding.event.keyCode = d3.keybinding.keyCodes[code[i]];
-            }
-        }
+          for (var i = 0; i < code.length; i++) {
+              // Normalise matching errors
+              if (code[i] === '++') code[i] = '+';
 
-        bindings.push(binding);
+              if (code[i] in d3.keybinding.modifierCodes) {
+                  binding.event[d3.keybinding.modifierProperties[d3.keybinding.modifierCodes[code[i]]]] = true;
+              } else if (code[i] in d3.keybinding.keyCodes) {
+                  binding.event.keyCode = d3.keybinding.keyCodes[code[i]];
+              }
+          }
+
+          bindings.push(binding);
+        });
 
         return keybinding;
     };
