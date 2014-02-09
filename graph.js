@@ -1,27 +1,23 @@
-// Preliminaries
-
-// How to use keybindings:
-// d3.select('body').onKey('←', function(d,i) {debugger;})
-
+"use strict";
 
 var margin = {top: 20, right: 10, bottom: 20, left: 10};
 var width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    height = 500 - margin.top - margin.bottom,
     colors = d3.scale.category10(),
     percentile = width/10;
 
+// TextBox
 var textBox = d3.select('body').append('textarea');
-
 
 textBox.on('keydown', function() {
   function setName(n, v) {
     n.name = v;
     restart();
-  };
+  }
   function setCapacity(e, v) {
     e.capacity = v;
     restart();
-  };
+  }
 
   d3.event.stopPropagation();
   if (d3.event.keyCode === 13) {
@@ -43,12 +39,12 @@ textBox.on('keydown', function() {
         alert("Need Length <= 2");
       }
       else {
-        setName(selected_node, this.value)
+        setName(selected_node, this.value);
       }
 
     // Changing Edge Capacity
     } else if (selected_link) {
-      var newCap = parseInt(this.value);
+      var newCap = parseInt(this.value, null);
       if (isNaN(newCap)) {
         alert("Please enter a number");
       }
@@ -60,8 +56,8 @@ textBox.on('keydown', function() {
     this.value = "";
   }
 });
-d3.select(window).onKey('⇧+⌫', function () {debugger;});
 
+// Svg
 var svg = d3.select('body')
   .append('svg')
   .attr('width', width)
@@ -73,7 +69,7 @@ var svg = d3.select('body')
 //  - links are always source < target; edge directions are set by 'left' and 'right'.
 var nodes = [
     {id: 0, name: 's', reflexive: false, fixed: true, x: (percentile), y: height/2},
-    {id: 1, name: 't', reflexive: false, fixed: true, x: (width-percentile), y: height/2},
+    {id: 100, name: 't', reflexive: false, fixed: true, x: (width-percentile), y: height/2},
     {id: 2, name: 'a', reflexive: false, },
     {id: 3, name: 'b', reflexive: false, },
     {id: 4, name: 'c', reflexive: false, }
@@ -137,10 +133,6 @@ var drag_line = svg.append('svg:path')
   .attr('class', 'link dragline hidden')
   .attr('d', 'M0,0L0,0');
 
-// handles to link and node element groups
-var path = svg.append('svg:g').selectAll('path'),
-    circle = svg.append('svg:g').selectAll('g');
-
 // mouse event vars
 var selected_node = null,
     selected_link = null,
@@ -164,6 +156,12 @@ function resetMouseVars() {
   mouseup_node = null;
   mousedown_link = null;
 }
+
+// === Business Time ===
+
+// handles to link and node element groups
+var path = svg.append('svg:g').selectAll('path'),
+    circle = svg.append('svg:g').selectAll('g');
 
 // update force layout (called automatically each iteration)
 function tick() {
@@ -200,13 +198,14 @@ function restart() {
 
   path.select('text')
     .select('tspan')
-      .text(function(d,i) {return d.capacity;});
+      .text(function(d) {return d.capacity;});
       
 
 
   // add new links
   var g = path.enter().append('g')
-    .attr('class', 'edge')
+    .attr('class', 'edge');
+
   g.append('svg:path')
     .attr('class', 'link')
     .attr('id', function(d,i) {return i})
@@ -214,17 +213,18 @@ function restart() {
     .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
     .on('mousedown', function(d) {
-      if(d3.event.altKey) return;
+      if(d3.event.altKey) {return}
 
       // select link
       mousedown_link = d;
-      if(mousedown_link === selected_link) selected_link = null;
-      else selected_link = mousedown_link;
+      if(mousedown_link === selected_link) {selected_link = null}
+      else {selected_link = mousedown_link;}
       selected_node = null;
 
       textBox.attr('placeholder', "New Max capacity");
       restart();
     });
+
   g.append('text')
     .append('textPath')
       .attr('xlink:href', function (d, i) {
@@ -233,7 +233,7 @@ function restart() {
       .attr('startOffset', '50%')
     .append('tspan')
       .attr('dy', -5)
-      .text(function(d,i) {return d.capacity;});
+      .text(function(d) {return d.capacity;});
 
   // remove old links
   path.exit().remove();
@@ -264,25 +264,25 @@ function restart() {
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .classed('reflexive', function(d) { return d.reflexive; })
     .on('mouseover', function(d) {
-      if(!mousedown_node || d === mousedown_node) return;
+      if(!mousedown_node || d === mousedown_node) {return}
       // enlarge target node
       d3.select(this).attr('transform', 'scale(1.1)');
     })
     .on('mouseout', function(d) {
-      if(!mousedown_node || d === mousedown_node) return;
+      if(!mousedown_node || d === mousedown_node) {return}
       // unenlarge target node
       d3.select(this).attr('transform', '');
     })
     .on('mousedown', function(d) {
-      if(d3.event.altKey) return;
+      if(d3.event.altKey) {return}
 
       // select node
       mousedown_node = d;
-      if(mousedown_node === selected_node) selected_node = null;
-      else selected_node = mousedown_node;
+      if(mousedown_node === selected_node) {selected_node = null}
+      else {selected_node = mousedown_node}
       selected_link = null;
 
-      textBox.attr('placeholder', "New Node Name")
+      textBox.attr('placeholder', "New Node Name");
 
       // reposition drag line
       drag_line
@@ -294,7 +294,7 @@ function restart() {
     })
     .on('mouseup', function(d) {
 
-      if(!mousedown_node) return;
+      if(!mousedown_node) {return}
 
       // needed by FF
       drag_line
@@ -354,15 +354,18 @@ function restart() {
   force.start();
 }
 
+// === Window listeners
+//
+
+// Mouse handlers
+
 function mousedown() {
-  console.log("in mousedown")
   // prevent I-bar on drag
-  // d3.event.preventDefault();
   
   // because :active only works in WebKit?
   svg.classed('active', true);
 
-  if(d3.event.altKey || mousedown_node || mousedown_link) return;
+  if(d3.event.altKey || mousedown_node || mousedown_link) {return}
 
   // insert new node at point
   var point = d3.mouse(this),
@@ -375,8 +378,7 @@ function mousedown() {
 }
 
 function mousemove() {
-  console.log("in mousemove")
-  if(!mousedown_node) return;
+  if(!mousedown_node) {return}
 
   // update drag line
   drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
@@ -408,8 +410,10 @@ function spliceLinksForNode(node) {
   });
 }
 
+// ========== Key Listeners ===========
+
 // only respond once per keydown
-var lastKeyDown = -1;
+// var lastKeyDown = -1;
 
 function keydown() {
   // if(lastKeyDown !== -1) return;
@@ -478,3 +482,15 @@ var win = d3.select(window)
     .onKey('b', bKey)
     .onKey('l', lKey)
     .onKey('r', rKey);
+
+
+// app starts here
+
+svg.on('mousedown', mousedown)
+  .on('mousemove', mousemove)
+  .on('mouseup', mouseup);
+d3.select(window)
+  .on('keydown', keydown)
+  .on('keyup', keyup);
+restart();
+

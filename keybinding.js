@@ -1,3 +1,6 @@
+// How to use keybindings:
+// d3.select('body').onKey('←', function(d,i) {debugger;})
+
 (function() {
   d3.selection.prototype.onKey = function(keyString, cb) {
     var keybinding = d3.keybinding.apply(this);
