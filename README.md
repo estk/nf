@@ -8,3 +8,10 @@ When an edge is selected: **L**(eft), **R**(ight), **B**(oth) change direction, 
 The di-graph logic was borrowed from [rkirsling](http://rkirsling.github.com)!.
 
 This project is an attempt to make the solutions to network flow problems accessible the general public. I will use a modified version of Ford-Fulkerson to compute the max flow. Special thanks to [Dimitris Achilloptas](http://users.soe.ucsc.edu/~optas/) for the introduction to such a great algorithm!
+
+TODO:
+- Implement Ford-Fulkerson
+- Better handling of keyString in keybinding.js
+- Multi-Edge Selection
+- Linear gravitation points
+- Cleanup restart()
