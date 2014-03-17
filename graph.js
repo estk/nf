@@ -494,3 +494,59 @@ d3.select(window)
   .on('keyup', keyup);
 restart();
 
+
+var button = d3.select('body').append('button')
+    .attr("name", "solve")
+    .attr("type", "button")
+    .text("Solve");
+
+
+// Ford - Fulkerson : Solve for the max flow.
+button.on('click', fordFulkerson);
+
+function fordFulkerson(vs, es) {
+  var rG = initResidual(vs,es),
+      path;
+
+  function initResidual(vs,es) {
+    // Initialize a residual graph structure.
+  // Set the flow of all edges initially to zero.
+  }
+  function findAugmentingP(residual) {
+    // run dfs to find s-t path, return the path seq
+  }
+  function augment(path, rG) {
+    function bottleneck(rG, path) {
+      // return the min residual capacity of any edge on path
+      // with respect to the current flow
+    }
+    function forwardp(e) {
+      // return true if e is a forward edge
+    }
+
+    // determine the bottleneck, b of the path
+    var b = bottleneck(path, rG);
+    path.forEach(function(e) {
+      if (forwardp(e)) {
+        e.flow += b;
+      } else { // e is a back edge
+        e.flow -= b;
+      }
+
+    });
+    // increase the flow of every forward edge by b
+    // decrease the flow of every backward edge by b
+    //
+    // return the new max flow and return it
+  }
+  function makeFlow(rG) {
+    // return the flow graph wrt the residual graph.
+  }
+
+  path = findAugmenting(rG);
+  while (path) {
+    augment(path, rG);
+    path = findAugmentingP(rG);
+  }
+  return makeFlow(rG);
+}
