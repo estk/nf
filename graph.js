@@ -502,15 +502,33 @@ var button = d3.select('body').append('button')
 
 
 // Ford - Fulkerson : Solve for the max flow.
-button.on('click', fordFulkerson);
+button.on('click', function(){ fordFulkerson(nodes, links) });
 
 function fordFulkerson(vs, es) {
   var rG = initResidual(vs,es),
       path;
 
+  debugger;
+
+  // Initialize a residual graph structure.
+  // returns a map of vetex id's to an array of their outgoing edges.
   function initResidual(vs,es) {
-    // Initialize a residual graph structure.
-  // Set the flow of all edges initially to zero.
+    var g = d3.map(),
+        outgoing,
+        edge;
+
+    vs.forEach(function(v) {
+      g.set(v.id, []);
+    });
+
+    es.forEach(function(e) {
+      edge = {target: e.target.id, flow: 0};
+      outgoing = g.get(e.source.id) || [];
+      outgoing.push(edge);
+      g.set(e.source.id, outgoing);
+    });
+
+    return g;
   }
   function findAugmentingP(residual) {
     // run dfs to find s-t path, return the path seq
