@@ -3,11 +3,16 @@
 var margin = {top: 20, right: 10, bottom: 20, left: 10};
 var width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom,
-    colors = d3.scale.category10(),
+    colors = d3.scale.category20(),
     percentile = width/10;
 
 // TextBox
 var textBox = d3.select('body').append('textarea');
+
+// MaxFlow
+var maxFlow = d3.select('body').append('div')
+    .text("Max Flow: ")
+  .append("span");
 
 textBox.on('keydown', function() {
   function setName(n, v) {
@@ -64,24 +69,29 @@ var svg = d3.select('body')
   .attr('height', height);
 
 // set up initial nodes and links
+//  - Source has id === 0, Sink id === 1.
 //  - nodes are known by 'id', not by index in array.
 //  - reflexive edges are indicated on the node (as a bold black circle).
 //  - links are always source < target; edge directions are set by 'left' and 'right'.
 var nodes = [
     {id: 0, name: 's', reflexive: false, fixed: true, x: (percentile), y: height/2},
-    {id: 100, name: 't', reflexive: false, fixed: true, x: (width-percentile), y: height/2},
+    {id: 1, name: 't', reflexive: false, fixed: true, x: (width-percentile), y: height/2},
     {id: 2, name: 'a', reflexive: false, },
     {id: 3, name: 'b', reflexive: false, },
-    {id: 4, name: 'c', reflexive: false, }
+    {id: 4, name: 'c', reflexive: false, },
+    {id: 5, name: 'd', reflexive: false, }
   ],
-  lastNodeId = 4,
+  lastNodeId = nodes.length-1,
   links = [
-    {source: nodes[0], target: nodes[2], left: false, right: true, capacity: 0 },
-    {source: nodes[0], target: nodes[3], left: false, right: true, capacity: 0 },
-    {source: nodes[0], target: nodes[4], left: false, right: true, capacity: 0 },
-    {source: nodes[2], target: nodes[1], left: false, right: true, capacity: 0 },
-    {source: nodes[3], target: nodes[1], left: false, right: true, capacity: 0 },
-    {source: nodes[4], target: nodes[1], left: false, right: true, capacity: 0 },
+    {source: nodes[0], target: nodes[2], left: false, right: true, capacity: 10 },
+    {source: nodes[0], target: nodes[3], left: false, right: true, capacity: 10 },
+    {source: nodes[2], target: nodes[3], left: false, right: true, capacity: 2 },
+    {source: nodes[2], target: nodes[4], left: false, right: true, capacity: 4 },
+    {source: nodes[2], target: nodes[5], left: false, right: true, capacity: 8 },
+    {source: nodes[3], target: nodes[5], left: false, right: true, capacity: 9 },
+    {source: nodes[4], target: nodes[1], left: false, right: true, capacity: 10 },
+    {source: nodes[5], target: nodes[4], left: false, right: true, capacity: 6 },
+    {source: nodes[5], target: nodes[1], left: false, right: true, capacity: 10 },
   ];
 
 // init D3 force layout
@@ -191,17 +201,6 @@ function restart() {
   // path (link) group
   path = path.data(links);
 
-  // update existing links
-  path.select('path').classed('selected', function(d) { return d === selected_link; })
-    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
-
-  path.select('text')
-    .select('tspan')
-      .text(function(d) {return d.capacity;});
-      
-
-
   // add new links
   var g = path.enter().append('g')
     .attr('class', 'edge');
@@ -232,12 +231,23 @@ function restart() {
       })
       .attr('startOffset', '50%')
     .append('tspan')
-      .attr('dy', -5)
-      .text(function(d) {return d.capacity;});
+      .attr('dy', -5);
 
   // remove old links
   path.exit().remove();
 
+  // update existing links
+  path.select('path').classed('selected', function(d) { return d === selected_link; })
+    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
+    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
+
+  path.select('text')
+    .select('tspan')
+      .text(function(d) {
+        if (d.flow) {return d.flow + " / " + d.capacity;}
+        else {return 0 + " / " + d.capacity;}
+      });
+      
 
   // circle (node) group
   // NB: the function arg is crucial here! nodes are known by id, not by index!
@@ -311,15 +321,9 @@ function restart() {
       // add link to graph (update if exists)
       // NB: links are strictly source < target; arrows separately specified by booleans
       var source, target, direction;
-      if(mousedown_node.id < mouseup_node.id) {
-        source = mousedown_node;
-        target = mouseup_node;
-        direction = 'right';
-      } else {
-        source = mouseup_node;
-        target = mousedown_node;
-        direction = 'left';
-      }
+      source = mousedown_node;
+      target = mouseup_node;
+      direction = 'right';
 
       var link;
       link = links.filter(function(l) {
@@ -425,14 +429,10 @@ function keydown() {
   }
 }
 function keyup() {
-  // lastKeyDown = -1;
-
-  if(d3.event.altKey) {
-    circle
-      .on('mousedown.drag', null)
-      .on('touchstart.drag', null);
-    svg.classed('drag', false);
-  }
+  circle
+    .on('mousedown.drag', null)
+    .on('touchstart.drag', null);
+  svg.classed('drag', false);
 }
 
 // Window keymap dispatch functions.
@@ -463,6 +463,13 @@ function bKey() {
   }
   restart();
 }
+function fKey() {
+  if(selected_node) {
+    // Make the selected node fixed in position.
+    selected_node.fixed = true;
+  }
+  restart();
+}
 function rmObj() {
   // Backspace should not navigate back
   d3.event.preventDefault();
@@ -481,7 +488,8 @@ var win = d3.select(window)
     .onKey('⌫/⌦', rmObj)
     .onKey('b', bKey)
     .onKey('l', lKey)
-    .onKey('r', rKey);
+    .onKey('r', rKey)
+    .onKey('f', fKey);
 
 
 // app starts here
@@ -508,63 +516,123 @@ function fordFulkerson(vs, es) {
   var rG = initResidual(vs,es),
       path;
 
-  debugger;
-
   // Initialize a residual graph structure.
   // returns a map of vetex id's to an array of their outgoing edges.
   function initResidual(vs,es) {
     var g = d3.map(),
         outgoing,
-        edge;
+        incoming;
 
     vs.forEach(function(v) {
       g.set(v.id, []);
     });
 
     es.forEach(function(e) {
-      edge = {target: e.target.id, flow: 0};
+      var bEdge = {target: e.target.id, flow: e.capacity};
+      var fEdge = {target: e.source.id, flow: 0};
+
       outgoing = g.get(e.source.id) || [];
-      outgoing.push(edge);
+      outgoing.push(bEdge);
+
+      incoming = g.get(e.target.id) || [];
+      incoming.push(fEdge);
+
       g.set(e.source.id, outgoing);
+      g.set(e.target.id, incoming);
     });
 
     return g;
   }
-  function findAugmentingP(residual) {
-    // run dfs to find s-t path, return the path seq
+  function findAugmentingP(rG) {
+    // run dfs to find s-t path, return the path seq.
+    var explored = d3.map();
+
+    function dfs(path) {
+      var u = path[path.length-1];
+      explored.set(u, true);
+
+      if (u === 1) { return path; }
+
+      // Consider edges which have nonzero residual flow.
+      var es = rG.get(u).filter(function(e){return e.flow>0;});
+
+      if (!es || es.length === 0) { return false; }
+
+      for (var i=0; i<es.length; i++) {
+        var tgt = es[i].target;
+        if (! explored.get(tgt)) {
+          var newpath = path.slice(0);
+          newpath.push(tgt);
+          var p = dfs(newpath);
+          
+          if (p) { return p; }
+        }
+      }
+    }
+    return dfs([0]);
   }
   function augment(path, rG) {
-    function bottleneck(rG, path) {
-      // return the min residual capacity of any edge on path
-      // with respect to the current flow
-    }
-    function forwardp(e) {
-      // return true if e is a forward edge
-    }
+    function bottleneck(path, rG) {
+      // return the min residual capacity of any edge on the path.
+      path = path.reverse();
+      var u = path.pop(),
+          min = parseFloat('Infinity');
+      
+      for (var v; v = path.pop();) {
+        var edge = rG.get(u).filter(function(e) {return e.target === v})[0];
+        if (edge.flow < min) {min = edge.flow;}
 
-    // determine the bottleneck, b of the path
-    var b = bottleneck(path, rG);
-    path.forEach(function(e) {
-      if (forwardp(e)) {
-        e.flow += b;
-      } else { // e is a back edge
-        e.flow -= b;
+        u = v;
       }
+      return min;
+    }
 
+    var b = bottleneck(path.slice(0), rG);
+    var u = 0;
+    console.log(path);
+    path.forEach(function(v) {
+      if (u === v) {return;}
+
+      var bEdge = rG.get(u).filter(function(e) {return e.target === v})[0];
+      var fEdge = rG.get(v).filter(function(e) {return e.target === u})[0];
+
+      fEdge.flow += b;
+      bEdge.flow -= b;
+
+      u = v;
     });
-    // increase the flow of every forward edge by b
-    // decrease the flow of every backward edge by b
-    //
-    // return the new max flow and return it
   }
   function makeFlow(rG) {
-    // return the flow graph wrt the residual graph.
+
+    // Display the result flow
+    links.forEach(function(l) {
+      var edge = rG.get(l.target.id).filter(function(e) { return e.target === l.source.id})[0];
+      l.flow = edge.flow;
+    });
+    restart();
+
+    // Display the max flow
+    var sinkIncedent = rG.get(1);
+    var total = 0;
+    sinkIncedent.forEach(function (e) {
+      total += e.flow;
+    });
+    maxFlow.text(total);
   }
 
-  path = findAugmenting(rG);
-  while (path) {
+  path = findAugmentingP(rG);
+  console.log("path: ", path);
+  console.log("graph: ", rG);
+  var i = 10;
+  while (path && i>0) {
     augment(path, rG);
+    console.log("path: ", path);
+    console.log("graph: ", rG);
+
     path = findAugmentingP(rG);
   }
-  return makeFlow(rG);
+
+  console.log("Final flow: ", rG);
+  
+  makeFlow(rG);
 }
