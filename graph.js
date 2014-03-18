@@ -7,14 +7,24 @@ var width = 960 - margin.left - margin.right,
     percentile = width/10;
 
 // TextBox
-var textBox = d3.select('body').append('textarea');
+var textBox = d3.select('body').append('textarea')
+    .onKey('return', textboxHandler);
 
 // MaxFlow
 var maxFlow = d3.select('body').append('div')
     .text("Max Flow: ")
   .append("span");
 
-textBox.on('keydown', function() {
+var solveButton = d3.select('body').append('button')
+    .attr("name", "solve")
+    .attr("type", "button")
+    .text("Solve");
+
+// Ford - Fulkerson : Solve for the max flow.
+solveButton.on('click', function(){ fordFulkerson(nodes, links) });
+
+function textboxHandler() {
+  var contents = textBox[0][0].value;
   function setName(n, v) {
     n.name = v;
     restart();
@@ -24,43 +34,41 @@ textBox.on('keydown', function() {
     restart();
   }
 
-  d3.event.stopPropagation();
-  if (d3.event.keyCode === 13) {
-    d3.event.preventDefault();
+  // === Dispatch ===
 
-    // Empty
-    if (this.value === "") {
-      alert("No name!");
-      return;
+  // Empty
+  if (contents === "") {
+    alert("No name!");
+    return;
 
-    // Nothing selected
-    } else if (!selected_node && !selected_link) {
-      alert("Please select a link or node to name.");
-    }
-
-    // Changing Node Name
-    if (selected_node) {
-      if (this.value.length > 2) {
-        alert("Need Length <= 2");
-      }
-      else {
-        setName(selected_node, this.value);
-      }
-
-    // Changing Edge Capacity
-    } else if (selected_link) {
-      var newCap = parseInt(this.value, null);
-      if (isNaN(newCap)) {
-        alert("Please enter a number");
-      }
-      else {
-        setCapacity(selected_link, newCap);
-      }
-    }
-    // Clear textbox
-    this.value = "";
+  // Nothing selected
+  } else if (!selected_node && !selected_link) {
+    alert("Please select a link or node to name.");
   }
-});
+
+  // Changing Node Name
+  if (selected_node) {
+    if (contents.length > 2) {
+      alert("Need Length <= 2");
+    }
+    else {
+      setName(selected_node, contents);
+    }
+
+  // Changing Edge Capacity
+  } else if (selected_link) {
+    var newCap = parseInt(contents, null);
+    if (isNaN(newCap)) {
+      alert("Please enter a number");
+    }
+    else {
+      setCapacity(selected_link, newCap);
+    }
+  }
+
+  // Clear textbox
+  textBox[0][0].value = "";
+}
 
 // Svg
 var svg = d3.select('body')
@@ -435,34 +443,6 @@ function keyup() {
   svg.classed('drag', false);
 }
 
-// Window keymap dispatch functions.
-function rKey() {
-  if(selected_node) {
-    // toggle node reflexivity
-    selected_node.reflexive = !selected_node.reflexive;
-  } else if(selected_link) {
-    // set link direction to right only
-    selected_link.left = false;
-    selected_link.right = true;
-  }
-  restart();
-}
-function lKey() {
-  if(selected_link) {
-    // set link direction to left only
-    selected_link.left = true;
-    selected_link.right = false;
-  }
-  restart();
-}
-function bKey() {
-  if(selected_link) {
-    // set link direction to both left and right
-    selected_link.left = true;
-    selected_link.right = true;
-  }
-  restart();
-}
 function fKey() {
   if(selected_node) {
     // Make the selected node fixed in position.
@@ -484,11 +464,10 @@ function rmObj() {
   selected_node = null;
   restart();
 }
-var win = d3.select(window)
-    .onKey('⌫/⌦', rmObj)
-    .onKey('b', bKey)
-    .onKey('l', lKey)
-    .onKey('r', rKey)
+var win = d3.select(window);
+
+win
+    .onKey('backspace/del', rmObj)
     .onKey('f', fKey);
 
 
@@ -502,15 +481,6 @@ d3.select(window)
   .on('keyup', keyup);
 restart();
 
-
-var button = d3.select('body').append('button')
-    .attr("name", "solve")
-    .attr("type", "button")
-    .text("Solve");
-
-
-// Ford - Fulkerson : Solve for the max flow.
-button.on('click', function(){ fordFulkerson(nodes, links) });
 
 function fordFulkerson(vs, es) {
   var rG = initResidual(vs,es),

@@ -2,6 +2,9 @@ textarea {
   text-align: center;
   display:block;
 }
+button {
+  display: block;
+}
 
 svg {
   background-color: #FFF;
