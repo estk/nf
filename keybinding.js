@@ -78,7 +78,6 @@ d3.keybinding = function(namespace) {
           };
 
           code = code.match(/(?:(?:[^+])+|\+\+|^\+$)/g);
-          console.log(code);
 
           for (var i = 0; i < code.length; i++) {
               // Normalise matching errors
