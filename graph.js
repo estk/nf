@@ -36,6 +36,7 @@ function textboxHandler() {
 
   // === Dispatch ===
 
+  d3.event.preventDefault();
   // Empty
   if (contents === "") {
     alert("No name!");
@@ -385,6 +386,8 @@ function mousedown() {
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
+  selected_link = null;
+  selected_node = node;
 
   restart();
 }
@@ -404,6 +407,8 @@ function mouseup() {
     drag_line
       .classed('hidden', true)
       .style('marker-end', '');
+  } else if (mousedown_link) {
+    textBox[0][0].focus();
   }
 
   // because :active only works in WebKit?
@@ -559,7 +564,6 @@ function fordFulkerson(vs, es) {
 
     var b = bottleneck(path.slice(0), rG);
     var u = 0;
-    console.log(path);
     path.forEach(function(v) {
       if (u === v) {return;}
 
@@ -591,18 +595,14 @@ function fordFulkerson(vs, es) {
   }
 
   path = findAugmentingP(rG);
-  console.log("path: ", path);
-  console.log("graph: ", rG);
   var i = 10;
   while (path && i>0) {
     augment(path, rG);
-    console.log("path: ", path);
-    console.log("graph: ", rG);
 
     path = findAugmentingP(rG);
   }
 
-  console.log("Final flow: ", rG);
+  console.debug("Residual Graph flow: ", rG);
   
   makeFlow(rG);
 }
