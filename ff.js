@@ -1,6 +1,12 @@
-
+"use strict";
 function fordFulkerson(vs, es) {
-  es = es.slice(0).map(function(o) { return JSON.parse(JSON.stringify(o)); });
+  es = es.slice(0).map(function(o) {
+    return {
+      source: o.source,
+      target: o.target,
+      capacity: o.capacity,
+    };
+  });
   var rG = initResidual(vs,es),
       path;
 
@@ -90,7 +96,7 @@ function fordFulkerson(vs, es) {
     });
   }
   // Returns [maxflow, edges]
-  function makeFlow(rG, es) {
+  function makeFlow(rG, vs, es) {
 
     // Display the result flow
     es.forEach(function(l) {
@@ -118,5 +124,5 @@ function fordFulkerson(vs, es) {
 
   console.debug("Residual Graph flow: ", rG);
   
-  return makeFlow(rG, es);
+  return makeFlow(rG, vs, es);
 }

@@ -99,15 +99,15 @@ var nodes = [
   ],
   lastNodeId = nodes.length-1,
   links = [
-    {source: nodes[0], target: nodes[2], left: false, right: true, capacity: 10 },
-    {source: nodes[0], target: nodes[3], left: false, right: true, capacity: 10 },
-    {source: nodes[2], target: nodes[3], left: false, right: true, capacity: 2 },
-    {source: nodes[2], target: nodes[4], left: false, right: true, capacity: 4 },
-    {source: nodes[2], target: nodes[5], left: false, right: true, capacity: 8 },
-    {source: nodes[3], target: nodes[5], left: false, right: true, capacity: 9 },
-    {source: nodes[4], target: nodes[1], left: false, right: true, capacity: 10 },
-    {source: nodes[5], target: nodes[4], left: false, right: true, capacity: 6 },
-    {source: nodes[5], target: nodes[1], left: false, right: true, capacity: 10 },
+    {source: nodes[0], target: nodes[2], capacity: 10 },
+    {source: nodes[0], target: nodes[3], capacity: 10 },
+    {source: nodes[2], target: nodes[3], capacity: 2 },
+    {source: nodes[2], target: nodes[4], capacity: 4 },
+    {source: nodes[2], target: nodes[5], capacity: 8 },
+    {source: nodes[3], target: nodes[5], capacity: 9 },
+    {source: nodes[4], target: nodes[1], capacity: 10 },
+    {source: nodes[5], target: nodes[4], capacity: 6 },
+    {source: nodes[5], target: nodes[1], capacity: 10 },
   ];
 
 // init D3 force layout
@@ -198,8 +198,8 @@ function tick() {
         dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
         normX = deltaX / dist,
         normY = deltaY / dist,
-        sourcePadding = d.left ? 17 : 12,
-        targetPadding = d.right ? 17 : 12,
+        sourcePadding = 12,
+        targetPadding = 17,
         sourceX = d.source.x + (sourcePadding * normX),
         sourceY = d.source.y + (sourcePadding * normY),
         targetX = d.target.x - (targetPadding * normX),
@@ -225,8 +225,7 @@ function restart() {
     .attr('class', 'link')
     .attr('id', function(d,i) {return i})
     .classed('selected', function(d) { return d === selected_link; })
-    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
+    .style('marker-end', 'url(#end-arrow)')
     .on('mousedown', function(d) {
       if(d3.event.altKey) {return}
 
@@ -254,8 +253,7 @@ function restart() {
 
   // update existing links
   path.select('path').classed('selected', function(d) { return d === selected_link; })
-    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
+    .style('marker-end', 'url(#end-arrow)');
 
   path.select('text')
     .select('tspan')
@@ -396,8 +394,7 @@ function mousedown() {
 function mousemove() {
   if (!mousedown_node) {return}
 
-  drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y +
-                 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
+  drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
   restart();
 }
 
