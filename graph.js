@@ -406,8 +406,6 @@ function mouseup() {
     drag_line
       .classed('hidden', true)
       .style('marker-end', '');
-  } else if (mousedown_link) {
-    textBox[0][0].focus();
   }
 
   svg.classed('active', false);
@@ -490,7 +488,7 @@ var transcribeButton = btnContainer.append('button')
     .attr("name", "solve")
     .attr("type", "button")
     .text("Render")
-    .attr('disabled', true)
+    // .attr('disabled', true)
     .on('click', renderGraph);
 
 var transcribeArea = body.append('textarea')
@@ -498,20 +496,38 @@ var transcribeArea = body.append('textarea')
     .onKey('return', transcribeGraph);
 
 function transcribeGraph () {
+  // Make a new copy of links.
+  var es = JSON.parse(JSON.stringify(links));
+  es.map(function(e) {
+    e.source = e.source.id;
+    e.target = e.target.id;
+    return e;
+  })
+
   var graph = {
     vertices: nodes,
-    edges: links,
+    edges: es,
   },
   graphJSON = JSON.stringify(graph, null, 2);
   transcribeArea[0][0].value = graphJSON;
 }
 
 function renderGraph () {
-  debugger;
   var graph = JSON.parse(transcribeArea[0][0].value);
 
   // This needs work
   nodes = graph.vertices;
-  links = graph.edges;
+
+  links = graph.edges.map(function(e){
+    var sourceId = e.source,
+        targetId = e.target;
+    e.source = nodes.filter(function(n) {
+      return n.id === sourceId;
+    })[0];
+    e.target = nodes.filter(function(n) {
+      return n.id === targetId;
+    })[0];
+    return e;
+  });
   restart();
 }
