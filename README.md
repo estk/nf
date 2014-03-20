@@ -10,6 +10,7 @@ The di-graph logic was borrowed from [rkirsling](http://rkirsling.github.com)!.
 This project is an attempt to make the solutions to network flow problems accessible the general public. This project uses the Ford-Fulkerson algorithm to calculate the max flow. Special thanks to [Dimitris Achilloptas](http://users.soe.ucsc.edu/~optas/) for the introduction to such a great algorithm!
 
 TODO:
-- Save graphs?
+- Show steps
+- Save graphs
 - Multi-Edge Selection?
 - Linear gravitation points?
