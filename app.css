@@ -27,8 +27,6 @@ textarea.transcribe {
 svg {
   background-color: #FFF;
   cursor: default;
-  display:block;
-  margin:auto;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
