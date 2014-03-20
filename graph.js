@@ -488,7 +488,7 @@ var transcribeButton = btnContainer.append('button')
     .attr("name", "solve")
     .attr("type", "button")
     .text("Render")
-    // .attr('disabled', true)
+    .attr('disabled', true)
     .on('click', renderGraph);
 
 var transcribeArea = body.append('textarea')
@@ -529,5 +529,15 @@ function renderGraph () {
     })[0];
     return e;
   });
+  force = d3.layout.force()
+    .nodes(nodes)
+    .links(links)
+    .size([width, height])
+    .linkDistance(100)
+    .gravity(0.1)
+    .charge(chargeF)
+    .linkStrength(0.05)
+    .on('tick', tick);
+
   restart();
 }
