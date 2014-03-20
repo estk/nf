@@ -1,14 +1,34 @@
 textarea {
   text-align: center;
   display:block;
+  margin: auto;
 }
-button {
+textarea.transcribe {
+  text-align: left;
   display: block;
+  margin: auto;
+  width: 80%;
+  height: 400px;
+}
+.solve {
+  margin:auto;
+  display: block;
+}
+.btncontainer {
+  display:table;
+  margin:auto;
+}
+.maxflow {
+  text-align: center;
+  display:block;
+  margin:auto;
 }
 
 svg {
   background-color: #FFF;
   cursor: default;
+  display:block;
+  margin:auto;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

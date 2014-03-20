@@ -5,16 +5,19 @@ var width = 960 - margin.left - margin.right,
     colors = d3.scale.category20(),
     percentile = width/10;
 
+var body = d3.select('body');
 // TextBox
-var textBox = d3.select('body').append('textarea')
+var textBox = body.append('textarea')
     .onKey('return', textboxHandler);
 
 // MaxFlow
-var maxFlow = d3.select('body').append('div')
+var maxFlow = body.append('div')
+    .attr('class', 'maxflow')
     .text("Max Flow: ")
   .append("span");
 
-var solveButton = d3.select('body').append('button')
+var solveButton = body.append('button')
+    .attr('class', 'solve')
     .attr("name", "solve")
     .attr("type", "button")
     .text("Solve");
@@ -468,3 +471,47 @@ d3.select(window)
   .on('keydown', keydown)
   .on('keyup', keyup);
 restart();
+
+
+
+// JSONify graph
+var btnContainer = body.append('div')
+    .attr('class', 'btncontainer');
+
+var transcribeButton = btnContainer.append('button')
+    .attr('class', 'transcribe')
+    .attr("name", "solve")
+    .attr("type", "button")
+    .text("Transcribe")
+    .on('click', transcribeGraph);
+
+var transcribeButton = btnContainer.append('button')
+    .attr('class', 'render')
+    .attr("name", "solve")
+    .attr("type", "button")
+    .text("Render")
+    .attr('disabled', true)
+    .on('click', renderGraph);
+
+var transcribeArea = body.append('textarea')
+    .attr('class', 'transcribe')
+    .onKey('return', transcribeGraph);
+
+function transcribeGraph () {
+  var graph = {
+    vertices: nodes,
+    edges: links,
+  },
+  graphJSON = JSON.stringify(graph, null, 2);
+  transcribeArea[0][0].value = graphJSON;
+}
+
+function renderGraph () {
+  debugger;
+  var graph = JSON.parse(transcribeArea[0][0].value);
+
+  // This needs work
+  nodes = graph.vertices;
+  links = graph.edges;
+  restart();
+}
