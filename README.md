@@ -11,6 +11,5 @@ This project is an attempt to make the solutions to network flow problems access
 
 TODO:
 - Show steps
-- Save graphs
 - Multi-Edge Selection?
 - Linear gravitation points?
