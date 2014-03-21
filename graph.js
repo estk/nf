@@ -90,15 +90,14 @@ var svg = d3.select('body')
 // set up initial nodes and links
 //  - Source has id === 0, Sink id === 1.
 //  - nodes are known by 'id', not by index in array.
-//  - reflexive edges are indicated on the node (as a bold black circle).
 //  - links are always source < target; edge directions are set by 'left' and 'right'.
 var nodes = [
-    {id: 0, name: 's', reflexive: false, fixed: true, x: (percentile), y: height/2},
-    {id: 1, name: 't', reflexive: false, fixed: true, x: (width-percentile), y: height/2},
-    {id: 2, name: 'a', reflexive: false, },
-    {id: 3, name: 'b', reflexive: false, },
-    {id: 4, name: 'c', reflexive: false, },
-    {id: 5, name: 'd', reflexive: false, }
+    {id: 0, name: 's', fixed: true, x: (percentile), y: height/2},
+    {id: 1, name: 't', fixed: true, x: (width-percentile), y: height/2},
+    {id: 2, name: 'a', },
+    {id: 3, name: 'b', },
+    {id: 4, name: 'c', },
+    {id: 5, name: 'd', }
   ],
   lastNodeId = nodes.length-1,
   links = [
@@ -123,6 +122,9 @@ var force = d3.layout.force()
     .charge(chargeF)
     .linkStrength(0.05)
     .on('tick', tick);
+
+var drag = force.drag()
+  .on("drag", dragmove);
 
 function chargeF (d) {
   // Source and sink should have more charge
@@ -168,9 +170,6 @@ var selected_node = null,
     mousedown_link = null,
     mousedown_node = null,
     mouseup_node = null;
-
-var drag = force.drag()
-  .on("drag", dragmove);
       
 function dragmove(d) {
   // Dont move source, and sink
@@ -217,6 +216,10 @@ function tick() {
 
 // update graph (called when needed)
 function restart() {
+  // Re-seed force layout with new nodes (/links).
+  force.nodes(nodes)
+      .links(links);
+
   // path (link) group
   path = path.data(links);
 
@@ -276,10 +279,9 @@ function restart() {
       .attr('class', 'id')
       .text(function(d) { return d.name; });
 
-  // update existing nodes (reflexive & selected visual states)
+  // update existing nodes (selected visual states)
   circle.selectAll('circle')
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
-    .classed('reflexive', function(d) { return d.reflexive; });
 
   // add new nodes
   var g = circle.enter().append('svg:g');
@@ -289,7 +291,6 @@ function restart() {
     .attr('r', 12)
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
-    .classed('reflexive', function(d) { return d.reflexive; })
     .on('mouseover', function(d) {
       if(!mousedown_node || d === mousedown_node) {return}
       // enlarge target node
@@ -303,9 +304,15 @@ function restart() {
     .on('mousedown', function(d) {
       if(d3.event.altKey) {return}
 
+      // console.log("mouse-selected-node", d);
+      // var nfl = nodes.filter(function(n) {return d.id === n.id})[0];
+      // console.log("matching id in node list", nfl);
+      // var match = nfl === d;
+      // console.log("do the nodes match?", match);
+
       // select node
       mousedown_node = d;
-      selected_node = mousedown_node
+      selected_node = mousedown_node;
       selected_link = null;
 
       textBox.attr('placeholder', "New Node Name");
@@ -384,13 +391,12 @@ function mousedown() {
 
   // insert new node at point
   var point = d3.mouse(this),
-      node = {id: ++lastNodeId, reflexive: false};
+      node = {id: ++lastNodeId};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
   selected_link = null;
   selected_node = node;
-
   restart();
 }
 
@@ -416,7 +422,7 @@ function mouseup() {
 
 function spliceLinksForNode(node) {
   var toSplice = links.filter(function(l) {
-    return (l.source === node || l.target === node);
+    return (l.source.id === node.id || l.target.id === node.id);
   });
   toSplice.map(function(l) {
     links.splice(links.indexOf(l), 1);
@@ -447,10 +453,10 @@ function rmObj() {
   d3.event.preventDefault();
 
   if (selected_node) {
-    nodes.splice(nodes.indexOf(selected_node), 1);
+    nodes = nodes.filter(function(n) { return n.id !== selected_node.id; });
     spliceLinksForNode(selected_node);
   } else if(selected_link) {
-    links.splice(links.indexOf(selected_link), 1);
+    links = links.filter(function(l){ return l !== selected_link; });
   }
   selected_link = null;
   selected_node = null;
@@ -488,7 +494,6 @@ var transcribeButton = btnContainer.append('button')
     .attr("name", "solve")
     .attr("type", "button")
     .text("Render")
-    .attr('disabled', true)
     .on('click', renderGraph);
 
 var transcribeArea = body.append('textarea')
@@ -502,7 +507,7 @@ function transcribeGraph () {
     e.source = e.source.id;
     e.target = e.target.id;
     return e;
-  })
+  });
 
   var graph = {
     vertices: nodes,
@@ -515,7 +520,10 @@ function transcribeGraph () {
 function renderGraph () {
   var graph = JSON.parse(transcribeArea[0][0].value);
 
-  // This needs work
+  links = [];
+  nodes = [];
+  restart();
+
   nodes = graph.vertices;
 
   links = graph.edges.map(function(e){
@@ -529,15 +537,6 @@ function renderGraph () {
     })[0];
     return e;
   });
-  force = d3.layout.force()
-    .nodes(nodes)
-    .links(links)
-    .size([width, height])
-    .linkDistance(100)
-    .gravity(0.1)
-    .charge(chargeF)
-    .linkStrength(0.05)
-    .on('tick', tick);
 
   restart();
 }
