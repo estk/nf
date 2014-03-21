@@ -16,21 +16,41 @@ var maxFlow = body.append('div')
     .text("Max Flow: ")
   .append("span");
 
-var solveButton = body.append('button')
+var solveBtnContainer = body.append('div')
+    .attr('class', 'solvebtncontainer');
+
+var solveButton = solveBtnContainer.append('button')
     .attr('class', 'solve')
     .attr("name", "solve")
     .attr("type", "button")
     .text("Solve");
 
-// Ford - Fulkerson : Solve for the max flow.
-solveButton.on('click', function(){
-  var res = fordFulkerson(nodes, links),
-      flow = res[0],
-      es = res[1];
+var resetButton = solveBtnContainer.append('button')
+    .attr('class', 'reset')
+    .attr("name", "reset")
+    .attr("type", "button")
+    .text("Reset")
+    .on('click', noFlow);
 
+function noFlow() {
+  links.forEach(function(l) {
+    l.flow = 0;
+  });
+  maxFlow.text("");
+  restart();
+}
+
+function updateGraph(resArr) {
+  var flow = resArr[0],
+      es = resArr[1];
   links = es;
   maxFlow.text(flow);
   restart();
+}
+// Ford - Fulkerson : Solve for the max flow.
+solveButton.on('click', function(){
+  var res = fordFulkerson(nodes, links);
+  updateGraph(res);
 });
 
 function textboxHandler() {
@@ -460,6 +480,8 @@ function rmObj() {
   }
   selected_link = null;
   selected_node = null;
+
+  noFlow();
   restart();
 }
 
@@ -479,17 +501,17 @@ restart();
 
 
 // JSONify graph
-var btnContainer = body.append('div')
-    .attr('class', 'btncontainer');
+var transBtnContainer = body.append('div')
+    .attr('class', 'transbtncontainer');
 
-var transcribeButton = btnContainer.append('button')
+var transcribeButton = transBtnContainer.append('button')
     .attr('class', 'transcribe')
     .attr("name", "solve")
     .attr("type", "button")
     .text("Transcribe")
     .on('click', transcribeGraph);
 
-var transcribeButton = btnContainer.append('button')
+var renderButton = transBtnContainer.append('button')
     .attr('class', 'render')
     .attr("name", "solve")
     .attr("type", "button")

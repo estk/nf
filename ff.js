@@ -1,5 +1,5 @@
-"use strict";
-function fordFulkerson(vs, es) {
+function fordFulkerson(vs, es, cb) {
+  "use strict";
   es = es.slice(0).map(function(o) {
     return {
       source: o.source,
@@ -118,7 +118,6 @@ function fordFulkerson(vs, es) {
   var i = 10;
   while (path && i>0) {
     augment(path, rG);
-
     path = findAugmentingP(rG);
   }
 

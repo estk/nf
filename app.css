@@ -10,11 +10,7 @@ textarea.transcribe {
   width: 80%;
   height: 400px;
 }
-.solve {
-  margin:auto;
-  display: block;
-}
-.btncontainer {
+.transbtncontainer, .solvebtncontainer {
   display:table;
   margin:auto;
 }
