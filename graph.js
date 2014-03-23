@@ -103,6 +103,7 @@ function textboxHandler() {
 
 // Svg
 var svg = d3.select('body')
+  .attr('class', 'network')
   .append('svg')
   .attr('width', width)
   .attr('height', height);

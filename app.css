@@ -23,7 +23,7 @@ textarea.transcribe {
   margin:auto;
 }
 
-svg {
+svg.network {
   background-color: #FFF;
   cursor: default;
   -webkit-user-select: none;
@@ -40,7 +40,7 @@ svg:not(.active):not(.ctrl) {
 path.link {
   fill: none;
   stroke: #000;
-  stroke-width: 4px;
+  stroke-width: 5px;
   cursor: default;
 }
 
@@ -68,11 +68,6 @@ path.hidden.link {
 circle.node {
   stroke-width: 1.5px;
   cursor: pointer;
-}
-
-circle.node.reflexive {
-  stroke: #000 !important;
-  stroke-width: 2.5px;
 }
 
 text {
