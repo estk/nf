@@ -6,6 +6,9 @@ var width = 960 - margin.left - margin.right,
     percentile = width/10;
 
 var body = d3.select('body');
+
+// === UI ===
+
 // TextBox
 var textBox = body.append('textarea')
     .onKey('return', textboxHandler);
@@ -23,7 +26,13 @@ var solveButton = solveBtnContainer.append('button')
     .attr('class', 'solve')
     .attr("name", "solve")
     .attr("type", "button")
-    .text("Solve");
+    .text("Solve")
+    .on('click', solveFlow);
+        
+function solveFlow (){
+  var res = fordFulkerson(networkGraph.nodes(), networkGraph.links());
+  updateGraph(res);
+}
 
 var resetButton = solveBtnContainer.append('button')
     .attr('class', 'reset')
@@ -33,7 +42,7 @@ var resetButton = solveBtnContainer.append('button')
     .on('click', noFlow);
 
 function noFlow() {
-  links.forEach(function(l) {
+  networkGraph.links().forEach(function(l) {
     l.flow = 0;
   });
   maxFlow.text("");
@@ -42,16 +51,16 @@ function noFlow() {
 
 function updateGraph(resArr) {
   var flow = resArr[0],
-      es = resArr[1];
-  links = es;
+      tmpLinks = resArr[1],
+      tmpNodes = networkGraph.nodes();
+  networkGraph = new Graph([], []);
+  maxFlow.text("");
+  restart();
+
+  networkGraph = new Graph(tmpNodes, tmpLinks);
   maxFlow.text(flow);
   restart();
 }
-// Ford - Fulkerson : Solve for the max flow.
-solveButton.on('click', function(){
-  var res = fordFulkerson(nodes, links);
-  updateGraph(res);
-});
 
 function textboxHandler() {
   var contents = textBox[0][0].value;
@@ -101,6 +110,8 @@ function textboxHandler() {
   textBox[0][0].value = "";
 }
 
+// === Graph ===
+
 // Svg
 var svg = d3.select('body')
   .attr('class', 'network')
@@ -112,7 +123,7 @@ var svg = d3.select('body')
 //  - Source has id === 0, Sink id === 1.
 //  - nodes are known by 'id', not by index in array.
 //  - links are always source < target; edge directions are set by 'left' and 'right'.
-var nodes = [
+var tmpNodes = [
     {id: 0, name: 's', fixed: true, x: (percentile), y: height/2},
     {id: 1, name: 't', fixed: true, x: (width-percentile), y: height/2},
     {id: 2, name: 'a', },
@@ -120,23 +131,24 @@ var nodes = [
     {id: 4, name: 'c', },
     {id: 5, name: 'd', }
   ],
-  lastNodeId = nodes.length-1,
-  links = [
-    {source: nodes[0], target: nodes[2], capacity: 10 },
-    {source: nodes[0], target: nodes[3], capacity: 10 },
-    {source: nodes[2], target: nodes[3], capacity: 2 },
-    {source: nodes[2], target: nodes[4], capacity: 4 },
-    {source: nodes[2], target: nodes[5], capacity: 8 },
-    {source: nodes[3], target: nodes[5], capacity: 9 },
-    {source: nodes[4], target: nodes[1], capacity: 10 },
-    {source: nodes[5], target: nodes[4], capacity: 6 },
-    {source: nodes[5], target: nodes[1], capacity: 10 },
+  tmpLinks = [
+    {source: tmpNodes[0], target: tmpNodes[2], capacity: 10 },
+    {source: tmpNodes[0], target: tmpNodes[3], capacity: 10 },
+    {source: tmpNodes[2], target: tmpNodes[3], capacity: 2 },
+    {source: tmpNodes[2], target: tmpNodes[4], capacity: 4 },
+    {source: tmpNodes[2], target: tmpNodes[5], capacity: 8 },
+    {source: tmpNodes[3], target: tmpNodes[5], capacity: 9 },
+    {source: tmpNodes[4], target: tmpNodes[1], capacity: 10 },
+    {source: tmpNodes[5], target: tmpNodes[4], capacity: 6 },
+    {source: tmpNodes[5], target: tmpNodes[1], capacity: 10 },
   ];
+
+var networkGraph = new Graph(tmpNodes, tmpLinks);
 
 // init D3 force layout
 var force = d3.layout.force()
-    .nodes(nodes)
-    .links(links)
+    .nodes(networkGraph.nodes)
+    .links(networkGraph.links)
     .size([width, height])
     .linkDistance(100)
     .gravity(0.1)
@@ -238,11 +250,11 @@ function tick() {
 // update graph (called when needed)
 function restart() {
   // Re-seed force layout with new nodes (/links).
-  force.nodes(nodes)
-      .links(links);
+  force.nodes(networkGraph.nodes())
+      .links(networkGraph.links());
 
   // path (link) group
-  path = path.data(links);
+  path = path.data(networkGraph.links());
 
   // add new links
   var g = path.enter().append('g')
@@ -292,7 +304,7 @@ function restart() {
 
   // circle (node) group
   // NB: the function arg is crucial here! nodes are known by id, not by index!
-  circle = circle.data(nodes, function(d) { return d.id; });
+  circle = circle.data(networkGraph.nodes(), function(d) { return d.id; });
 
   circle.selectAll('text')
       .attr('x', 0)
@@ -364,23 +376,10 @@ function restart() {
 
       // add link to graph (update if exists)
       // NB: links are strictly source < target; arrows separately specified by booleans
-      var source, target, direction;
-      source = mousedown_node;
-      target = mouseup_node;
-      direction = 'right';
+      var source = mousedown_node,
+          target = mouseup_node;
 
-      var link;
-      link = links.filter(function(l) {
-        return (l.source === source && l.target === target);
-      })[0];
-
-      if(link) {
-        link[direction] = true;
-      } else {
-        link = {source: source, target: target, left: false, right: false};
-        link[direction] = true;
-        links.push(link);
-      }
+      var link = networkGraph.addLink(source.id, target.id);
 
       // select new link
       selected_link = link;
@@ -412,10 +411,8 @@ function mousedown() {
 
   // insert new node at point
   var point = d3.mouse(this),
-      node = {id: ++lastNodeId};
-  node.x = point[0];
-  node.y = point[1];
-  nodes.push(node);
+      node = networkGraph.addNode(point);
+
   selected_link = null;
   selected_node = node;
   restart();
@@ -439,15 +436,6 @@ function mouseup() {
 
   // clear mouse event vars
   resetMouseVars();
-}
-
-function spliceLinksForNode(node) {
-  var toSplice = links.filter(function(l) {
-    return (l.source.id === node.id || l.target.id === node.id);
-  });
-  toSplice.map(function(l) {
-    links.splice(links.indexOf(l), 1);
-  });
 }
 
 // ========== Key Listeners ===========
@@ -474,10 +462,9 @@ function rmObj() {
   d3.event.preventDefault();
 
   if (selected_node) {
-    nodes = nodes.filter(function(n) { return n.id !== selected_node.id; });
-    spliceLinksForNode(selected_node);
+    networkGraph.deleteNode(selected_node.id);
   } else if(selected_link) {
-    links = links.filter(function(l){ return l !== selected_link; });
+    networkGraph.deleteLinks(function(l) {return l === selected_link; });
   }
   selected_link = null;
   selected_node = null;
@@ -510,7 +497,9 @@ var transcribeButton = transBtnContainer.append('button')
     .attr("name", "solve")
     .attr("type", "button")
     .text("Transcribe")
-    .on('click', transcribeGraph);
+    .on('click', function(){
+      transcribeArea[0][0].value = networkGraph.toJSON();
+    });
 
 var renderButton = transBtnContainer.append('button')
     .attr('class', 'render')
@@ -521,45 +510,13 @@ var renderButton = transBtnContainer.append('button')
 
 var transcribeArea = body.append('textarea')
     .attr('class', 'transcribe')
-    .onKey('return', transcribeGraph);
-
-function transcribeGraph () {
-  // Make a new copy of links.
-  var es = JSON.parse(JSON.stringify(links));
-  es.map(function(e) {
-    e.source = e.source.id;
-    e.target = e.target.id;
-    return e;
-  });
-
-  var graph = {
-    vertices: nodes,
-    edges: es,
-  },
-  graphJSON = JSON.stringify(graph, null, 2);
-  transcribeArea[0][0].value = graphJSON;
-}
+    .onKey('return', renderGraph);
 
 function renderGraph () {
-  var graph = JSON.parse(transcribeArea[0][0].value);
-
-  links = [];
-  nodes = [];
+  // Flush
+  networkGraph = new Graph([], []);
   restart();
 
-  nodes = graph.vertices;
-
-  links = graph.edges.map(function(e){
-    var sourceId = e.source,
-        targetId = e.target;
-    e.source = nodes.filter(function(n) {
-      return n.id === sourceId;
-    })[0];
-    e.target = nodes.filter(function(n) {
-      return n.id === targetId;
-    })[0];
-    return e;
-  });
-
+  networkGraph = Graph.fromJSON(transcribeArea[0][0].value);
   restart();
 }
