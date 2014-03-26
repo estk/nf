@@ -20,10 +20,12 @@
   window.Graph = Graph;
   function Graph (nodes, links) {
     var self = this;
-
     this._nodes = nodes;
-    this._lastNodeId = nodes.length-1;
     this._links = links;
+    // Get the max id so that the added nodes will have a unique id.
+    this._lastNodeId = nodes.reduce(function( acc, x ){
+      return x.id > acc ? x.id : acc;
+    }, 0);
 
     return this;
   }
@@ -68,6 +70,13 @@
   };
 
 
+
+  Graph.prototype.resetFlow = function () {
+    this._links.forEach(function(l) {
+      l.flow = 0;
+    });
+  };
+
   Graph.prototype.nodes = function () {
     return this._nodes;
   };
@@ -101,7 +110,6 @@
 
   Graph.prototype.deleteNode = function (id) {
     this._nodes = this._nodes.filter(function(n) { return n.id !== id; });
-    this._lastNodeId--;
 
     // Remove links incident to node
     this.deleteLinks(function(l) {

@@ -42,13 +42,10 @@ var resetButton = solveBtnContainer.append('button')
     .on('click', noFlow);
 
 function noFlow() {
-  networkGraph.links().forEach(function(l) {
-    l.flow = 0;
-  });
+  networkGraph.resetFlow();
   maxFlow.text("");
   restart();
 }
-
 function updateGraph(resArr) {
   var flow = resArr[0],
       tmpLinks = resArr[1],
@@ -314,10 +311,15 @@ function restart() {
 
   // update existing nodes (selected visual states)
   circle.selectAll('circle')
-    .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
+    .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); });
 
   // add new nodes
   var g = circle.enter().append('svg:g');
+
+  // Add the circle where it should be.
+  g.attr('transform', function(d) {
+    return 'translate(' + d.x + ',' + d.y + ')';
+  });
 
   g.append('svg:circle')
     .attr('class', 'node')
@@ -514,8 +516,8 @@ var transcribeArea = body.append('textarea')
 
 function renderGraph () {
   // Flush
-  networkGraph = new Graph([], []);
-  restart();
+  // networkGraph = new Graph([], []);
+  // restart();
 
   networkGraph = Graph.fromJSON(transcribeArea[0][0].value);
   restart();
