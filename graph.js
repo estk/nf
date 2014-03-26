@@ -1,22 +1,6 @@
 (function(){
   "use strict";
 
-  window.Edge = Edge;
-  function Edge (graph, edgeObj) {
-    this._graph = graph;
-    this.sourceId = edgeObj.sourceId;
-    this.targetId = edgeObj.targetId;
-    this.capacity = edgeObj.capacity;
-    return this;
-  }
-
-  Edge.prototype.source = function () {
-    return this._graph.getNode(this.sourceId);
-  };
-  Edge.prototype.target = function () {
-    return this._graph.getNode(this.targetId);
-  };
-
   window.Graph = Graph;
   function Graph (nodes, links) {
     var self = this;
@@ -118,12 +102,12 @@
 
   };
 
-  Graph.prototype.addLink = function (sourceId, targetId) {
-    var previous = this.getLink(sourceId, targetId);
+  Graph.prototype.addLink = function (source, target) {
+    var previous = this.getLink(source, target);
 
     if (previous) return previous;
 
-    var newLink = new Edge({sourceId: sourceId, targetId: targetId});
+    var newLink = {source: source, target: target};
     this._links.push( newLink );
 
     return newLink;

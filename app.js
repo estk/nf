@@ -31,7 +31,7 @@ var solveButton = solveBtnContainer.append('button')
         
 function solveFlow (){
   var res = fordFulkerson(networkGraph.nodes(), networkGraph.links());
-  updateGraph(res);
+  updateGraph(res[0]);
 }
 
 var resetButton = solveBtnContainer.append('button')
@@ -46,10 +46,10 @@ function noFlow() {
   maxFlow.text("");
   restart();
 }
-function updateGraph(resArr) {
-  var flow = resArr[0],
-      tmpLinks = resArr[1],
-      tmpNodes = networkGraph.nodes();
+function updateGraph(res) {
+  var flow = res.maxflow,
+      tmpLinks = res.edges,
+      tmpNodes = res.vertices;
   networkGraph = new Graph([], []);
   maxFlow.text("");
   restart();
@@ -318,6 +318,7 @@ function restart() {
 
   // Add the circle where it should be.
   g.attr('transform', function(d) {
+    if (!d.x || !d.y) return "";
     return 'translate(' + d.x + ',' + d.y + ')';
   });
 
@@ -381,7 +382,7 @@ function restart() {
       var source = mousedown_node,
           target = mouseup_node;
 
-      var link = networkGraph.addLink(source.id, target.id);
+      var link = networkGraph.addLink(source, target);
 
       // select new link
       selected_link = link;
@@ -408,7 +409,8 @@ function restart() {
 // ========== Mouse Listeners ===========
 function mousedown() {
   svg.classed('active', true);
-
+  
+  if(d3.event.which !== 1) {return}
   if(d3.event.altKey || mousedown_node || mousedown_link) {return}
 
   // insert new node at point

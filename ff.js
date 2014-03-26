@@ -9,7 +9,8 @@ function fordFulkerson(vs, es, cb) {
     };
   });
   var rG = initResidual(vs,es),
-      path;
+      path = null,
+      log = [];
 
   // Initialize a residual graph structure.
   // returns a map of vetex id's to an array of their outgoing edges.
@@ -112,16 +113,30 @@ function fordFulkerson(vs, es, cb) {
       total += e.flow;
     });
 
-    return [total, es];
+    return {
+      maxflow: total,
+      vertices: vs,
+      edges: es
+    };
+  }
+  function logState(rG, path) {
+    log.push({
+      flow: makeFlow(rG, vs, es),
+      residual: rG,
+      path: path
+    });
   }
 
   // === Main Loop ===
 
+  logState(rG, path);
+
   while (path = findAugmentingP(rG)) {
     augment(path, rG);
+    logState(rG, path);
   }
 
   console.debug("Residual Graph flow: ", rG);
   
-  return makeFlow(rG, vs, es);
+  return [makeFlow(rG, vs, es), log];
 }
