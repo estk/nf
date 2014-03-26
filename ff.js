@@ -1,5 +1,6 @@
 function fordFulkerson(vs, es, cb) {
   "use strict";
+  // Make a copy of the edges.
   es = es.slice(0).map(function(o) {
     return {
       source: o.source,
@@ -114,11 +115,10 @@ function fordFulkerson(vs, es, cb) {
     return [total, es];
   }
 
-  path = findAugmentingP(rG);
-  var i = 10;
-  while (path && i>0) {
+  // === Main Loop ===
+
+  while (path = findAugmentingP(rG)) {
     augment(path, rG);
-    path = findAugmentingP(rG);
   }
 
   console.debug("Residual Graph flow: ", rG);
