@@ -122,7 +122,7 @@ function fordFulkerson(vs, es, cb) {
   function logState(rG, path) {
     log.push({
       flow: makeFlow(rG, vs, es),
-      residual: rG,
+      residual: JSON.parse(JSON.stringify(rG)),
       path: path
     });
   }
