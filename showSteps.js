@@ -32,6 +32,8 @@ function showSteps(log){
       .attr('width', width)
       .attr('height', height);
 
+  // Make defs for links (arrows, etc)
+
   showStep(index);
 
   function showStep(index) {
@@ -45,8 +47,7 @@ function showSteps(log){
     var residualG = svg.append('g')
         .attr('class', 'residual');
 
-    
-    debugger;
+    // Build svg of flow and residual.
   }
 
 }
