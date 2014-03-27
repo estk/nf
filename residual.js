@@ -2,7 +2,7 @@
   "use strict";
 
   window.Residual = Residual;
-  function Residual (preres) {
+  function Residual (graph, preres) {
     var self = this,
         ns = [],
         ls = [];
@@ -23,6 +23,11 @@
       });
     }
 
+    ns = ns.map(function(n) {
+      var node = graph.getNode(n.id);
+      return JSON.parse( JSON.stringify(node) )
+    });
+
     ls = ls.map(function(e){
       var sourceId = e.source,
           targetId = e.target;
@@ -38,3 +43,4 @@
     return new Graph(ns, ls);
   }
 })();
+

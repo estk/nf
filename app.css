@@ -1,5 +1,46 @@
+.flow .link path{
+  fill: none;
+  stroke: #666;
+  stroke-width: 2px;
+}
+.residual .link path{
+  fill: none;
+  stroke: #666;
+  stroke-width: 2px;
+}
+.flow .link.sending path{
+  stroke-width: 3px;
+  stroke: steelblue;
+}
+.residual .link.sending path{
+  stroke-width: 3px;
+  stroke: steelblue;
+}
+.residual .link.resending path{
+  stroke-width: 3px;
+  stroke: brown;
+}
+.flow .link.sending {
+  fill: steelblue;
+}
+.residual .link.sending {
+  fill: steelblue;
+}
+.residual .link.resending {
+  fill: brown;
+}
+
+.flow circle {
+  stroke: #333;
+}
+.residual circle {
+  stroke: #333;
+}
+
+
 body {
   text-align:center;
+  text-rendering: geometricPrecision;
 }
 textarea {
   text-align: center;
@@ -38,45 +79,45 @@ svg:not(.active):not(.ctrl) {
   cursor: crosshair;
 }
 
-path.link {
+.network path.link {
   fill: none;
   stroke: #000;
   stroke-width: 5px;
   cursor: default;
 }
 
-svg:not(.active):not(.ctrl) path.link {
+svg.network:not(.active):not(.ctrl) path.link {
   cursor: pointer;
 }
 
-path.selected.link {
+.network path.selected.link {
   stroke-dasharray: 10,2;
 }
 
-.link path.dragline.link {
+.network .link path.dragline.link {
   pointer-events: none;
 }
 
-path.hidden.link {
+.network path.hidden.link {
   stroke-width: 0;
 }
 
-.edge text {
+.link text {
   text-anchor: middle;
   dominant-baseline: text-after-edge;
 }
 
-circle.node {
+.network circle.node {
   stroke-width: 1.5px;
   cursor: pointer;
 }
 
 text {
-  font: 12px sans-serif;
+  font: 13px sans-serif;
   pointer-events: none;
 }
 
-text.id {
+text.name {
   text-anchor: middle;
   font-weight: bold;
 }

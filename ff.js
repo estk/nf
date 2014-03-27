@@ -120,9 +120,15 @@ function fordFulkerson(vs, es, cb) {
     };
   }
   function logState(rG, path) {
+    var newRG = JSON.parse(JSON.stringify(rG));
+    var newGraph = new Graph(vs, es);
+    newGraph = Graph.fromJSON( newGraph.toJSON() );
+    var newVs = newGraph.nodes(),
+        newEs = newGraph.links();
+
     log.push({
-      flow: makeFlow(rG, vs, es),
-      residual: JSON.parse(JSON.stringify(rG)),
+      flow: makeFlow(rG, newVs, newEs),
+      residual: newRG,
       path: path
     });
   }

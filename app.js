@@ -134,8 +134,8 @@ function makeEditor(){
 
   // Svg
   var svg = d3.select('body')
-    .attr('class', 'network')
     .append('svg')
+    .attr('class', 'network')
     .attr('width', width)
     .attr('height', height);
 
@@ -278,7 +278,7 @@ function makeEditor(){
 
     // add new links
     var g = path.enter().append('g')
-      .attr('class', 'edge');
+      .attr('class', 'link');
 
     g.append('svg:path')
       .attr('class', 'link')
@@ -415,9 +415,9 @@ function makeEditor(){
 
     // show node names
     g.append('svg:text')
-        .attr('x', 0)
+        .attr('x', -1)
         .attr('y', 4)
-        .attr('class', 'id')
+        .attr('class', 'name')
         .text(function(d) { return d.name; });
 
     // remove old nodes
