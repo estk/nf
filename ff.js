@@ -1,5 +1,6 @@
 function fordFulkerson(vs, es, cb) {
   "use strict";
+  // Make a copy of the edges.
   es = es.slice(0).map(function(o) {
     return {
       source: o.source,
@@ -8,7 +9,8 @@ function fordFulkerson(vs, es, cb) {
     };
   });
   var rG = initResidual(vs,es),
-      path;
+      path = null,
+      log = [];
 
   // Initialize a residual graph structure.
   // returns a map of vetex id's to an array of their outgoing edges.
@@ -111,17 +113,36 @@ function fordFulkerson(vs, es, cb) {
       total += e.flow;
     });
 
-    return [total, es];
+    return {
+      maxflow: total,
+      vertices: vs,
+      edges: es
+    };
+  }
+  function logState(rG, path) {
+    var newRG = JSON.parse(JSON.stringify(rG));
+    var newGraph = new Graph(vs, es);
+    newGraph = Graph.fromJSON( newGraph.toJSON() );
+    var newVs = newGraph.nodes(),
+        newEs = newGraph.links();
+
+    log.push({
+      flow: makeFlow(rG, newVs, newEs),
+      residual: newRG,
+      path: path
+    });
   }
 
-  path = findAugmentingP(rG);
-  var i = 10;
-  while (path && i>0) {
+  // === Main Loop ===
+
+  logState(rG, path);
+
+  while (path = findAugmentingP(rG)) {
     augment(path, rG);
-    path = findAugmentingP(rG);
+    logState(rG, path);
   }
 
   console.debug("Residual Graph flow: ", rG);
   
-  return makeFlow(rG, vs, es);
+  return [makeFlow(rG, vs, es), log];
 }
