@@ -81,13 +81,13 @@
   };
 
   Graph.prototype.getNode = function (id) {
-    if (! this._nodes) return null;
+    if (! this._nodes) {return null}
 
     var res = this._nodes.filter(function (n) {
       return n.id === id;
     });
 
-    if (res.length === 0) return null;
+    if (res.length === 0) {return null}
 
     return res[0];
   };
@@ -105,7 +105,7 @@
   Graph.prototype.addLink = function (source, target) {
     var previous = this.getLink(source, target);
 
-    if (previous) return previous;
+    if (previous) {return previous}
 
     var newLink = {source: source, target: target};
     this._links.push( newLink );
@@ -113,13 +113,13 @@
     return newLink;
   };
   Graph.prototype.getLink = function (source, target) {
-    if (!this._links) return null;
+    if (!this._links) {return null}
 
     var res = this._links.filter(function(l) {
       return (l.source === source && l.target === target);
     });
 
-    if (res.length === 0) return null;
+    if (res.length === 0) {return null}
 
     return res[0];
   };

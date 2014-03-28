@@ -106,10 +106,6 @@ function showSteps(log){
           targetX = d.target.x - (targetPadding * normX),
           targetY = d.target.y - (targetPadding * normY);
       return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
-      // var dx = d.target.x - d.source.x,
-      //     dy = d.target.y - d.source.y,
-      //     dr = Math.sqrt(dx * dx + dy * dy);
-      // return "M" + sourceX + "," + sourceY + "A" + dr + "," + dr + " 0 0,1 " + targetX + "," + targetY;
     }
   }
   var flowForce = d3.layout.force()
@@ -144,44 +140,9 @@ function showSteps(log){
           sourceX = d.source.x + (sourcePadding * normX),
           sourceY = d.source.y + (sourcePadding * normY),
           targetX = d.target.x - (targetPadding * normX),
-          targetY = d.target.y - (targetPadding * normY),
-          h = dr - dr * Math.cos( Math.asin( dist / (2 * dr) ) ),
-          theta = -Math.atan( dy / dx );
-      d.h = h;
-      d.theta = theta;
+          targetY = d.target.y - (targetPadding * normY);
       return "M" + sourceX + "," + sourceY + "A" + dr + "," + dr + " 0 0,1 " + targetX + "," + targetY;
     }
-
-      var tspan = resPath.selectAll("text")
-//           .attr('transform', function(d) {
-//             if (!d.h || !d.theta) {return 0;}
-//
-//             return 'translate( ' + (-d.h * Math.cos( d.theta )) + ', ' + (-d.h * Math.sin( d.theta )) + ')';
-//           });
-//
-      tspan
-        .filter(function(d) {
-          return d.source.x > d.target.x;
-        })
-          .attr("rotate", "180")
-          .attr("dy", "-5");
-      tspan
-        .filter(function(d) {
-          return d.source.x <= d.target.x;
-        })
-          .attr("dy", "-10");
-
-//
-//       tspan
-//         .filter(function(d) {
-//           return d.source.x <= d.target.x;
-//         })
-//         .attr("rotate", 0)
-//         .attr('dy', function(d) {
-//           if (!d.h || !d.theta) {return 0;}
-//
-//           return -d.h * Math.sin( theta );
-//         });
 
   }
   var resForce = d3.layout.force()
@@ -204,7 +165,7 @@ function showSteps(log){
         residual = new Residual(flow, logItem.residual);
 
     back.attr("disabled", function(){ return index <= 0 ? true : null; });
-    forward.attr("disabled", function(){ return index >= log.length-1 ? true : null; })
+    forward.attr("disabled", function(){ return index >= log.length-1 ? true : null; });
 
     // Flow
     flowForce.nodes(flow.nodes())
@@ -218,12 +179,12 @@ function showSteps(log){
         .attr("class", "link")
     .append("path")
         .attr("marker-end", "url(#end-arrow1)")
-        .attr('id', function(d) {return d.source.id.toString() + d.target.id.toString();});
+        .attr('id', function(d) {return 'flow' + d.source.id.toString() + '-' + d.target.id.toString();});
 
     flowLinkEnter.append('text')
       .append('textPath')
         .attr('xlink:href', function (d) {
-          return "#" + d.source.id.toString() + d.target.id.toString();
+          return "#flow" + d.source.id.toString() + '-' + d.target.id.toString();
         })
         .attr('startOffset', '50%')
       .append('tspan')
@@ -231,13 +192,13 @@ function showSteps(log){
 
     flowPath
         .classed('sending', function(d) {
-          if (! path) return false;
+          if (! path) {return false}
           var sourceIndex = path.indexOf(d.source.id),
               targetIndex = path.indexOf(d.target.id);
           return sourceIndex >=0 && targetIndex >= 0 && sourceIndex === targetIndex-1;
         })
         .classed('resending', function(d) {
-          if (! path) return false;
+          if (! path) {return false}
           var sourceIndex = path.indexOf(d.source.id),
               targetIndex = path.indexOf(d.target.id);
           return sourceIndex >=0 && targetIndex >= 0 && sourceIndex === targetIndex-1;
@@ -278,16 +239,16 @@ function showSteps(log){
         .attr("class", "link")
       .append("path")
         .attr("marker-end", "url(#end-arrow2)")
-        .attr('id', function(d) {return d.source.id.toString() + d.target.id.toString();});
+        .attr('id', function(d) {return 'res' + d.source.id.toString() + d.target.id.toString();});
 
     resLinkEnter.append('text')
         .attr("text-anchor", "middle")
       .append('textPath')
         .attr('xlink:href', function (d) {
-          return "#" + d.source.id.toString() + d.target.id.toString();
+          return "#res" + d.source.id.toString() + d.target.id.toString();
         })
         .attr('startOffset', '50%')
-      .append('tspan')
+      .append('tspan');
 
 
     resPath
