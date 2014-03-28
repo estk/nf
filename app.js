@@ -1,5 +1,4 @@
 function makeEditor(){
-  "use strict";
   var margin = {top: 20, right: 10, bottom: 20, left: 10};
   var width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
@@ -74,8 +73,8 @@ function makeEditor(){
         finalFlow = res[0],
         log = res[1];
 
-    window.networkGraph = networkGraph;
     body.html('');
+    window.networkGraph = networkGraph;
 
     showSteps(log);
   }
@@ -161,7 +160,12 @@ function makeEditor(){
       {source: tmpNodes[5], target: tmpNodes[1], capacity: 10 },
     ];
 
-  var networkGraph = new Graph(tmpNodes, tmpLinks);
+  var networkGraph;
+  if (window.networkGraph) {
+    networkGraph = Graph.fromJSON( window.networkGraph.toJSON() );
+  } else {
+    networkGraph = new Graph(tmpNodes, tmpLinks);
+  }
 
   // init D3 force layout
   var force = d3.layout.force()
