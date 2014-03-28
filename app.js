@@ -74,8 +74,6 @@ function makeEditor(){
         finalFlow = res[0],
         log = res[1];
 
-    // TODO: Need to display Flow and Residual graph in a UI.
-
     window.networkGraph = networkGraph;
     body.html('');
 
@@ -415,7 +413,6 @@ function makeEditor(){
 
     // show node names
     g.append('svg:text')
-        .attr('x', -1)
         .attr('y', 4)
         .attr('class', 'name')
         .text(function(d) { return d.name; });

@@ -8,7 +8,15 @@
   stroke: #666;
   stroke-width: 2px;
 }
+.residual .link text {
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
 .flow .link.sending path{
+  stroke-width: 3px;
+  stroke: steelblue;
+}
+.flow .link.resending path{
   stroke-width: 3px;
   stroke: steelblue;
 }

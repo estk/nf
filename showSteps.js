@@ -94,11 +94,11 @@ function showSteps(log){
       return "translate(" + d.x + "," + d.y + ")";
     }
     function linkArc(d) {
-      var deltaX = d.target.x - d.source.x,
-          deltaY = d.target.y - d.source.y,
-          dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-          normX = deltaX / dist,
-          normY = deltaY / dist,
+      var dx = d.target.x - d.source.x,
+          dy = d.target.y - d.source.y,
+          dist = Math.sqrt(dx * dx + dy * dy),
+          normX = dx / dist,
+          normY = dy / dist,
           sourcePadding = 10,
           targetPadding = 10,
           sourceX = d.source.x + (sourcePadding * normX),
@@ -133,36 +133,56 @@ function showSteps(log){
       return "translate(" + d.x + "," + d.y + ")";
     }
     function linkArc(d) {
-      var deltaX = d.target.x - d.source.x,
-          deltaY = d.target.y - d.source.y,
-          dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-          normX = deltaX / dist,
-          normY = deltaY / dist,
+      var dx = d.target.x - d.source.x,
+          dy = d.target.y - d.source.y,
+          dist = Math.sqrt(dx * dx + dy * dy),
+          dr = dist*2,
+          normX = dx / dist,
+          normY = dy / dist,
           sourcePadding = 10,
           targetPadding = 10,
           sourceX = d.source.x + (sourcePadding * normX),
           sourceY = d.source.y + (sourcePadding * normY),
           targetX = d.target.x - (targetPadding * normX),
-          targetY = d.target.y - (targetPadding * normY);
-      var dx = d.target.x - d.source.x,
-          dy = d.target.y - d.source.y,
-          dr = Math.sqrt(dx * dx + dy * dy);
-      d.dr = dr;
-      d.dist = dist;
+          targetY = d.target.y - (targetPadding * normY),
+          h = dr - dr * Math.cos( Math.asin( dist / (2 * dr) ) ),
+          theta = -Math.atan( dy / dx );
+      d.h = h;
+      d.theta = theta;
+      return "M" + sourceX + "," + sourceY + "A" + dr + "," + dr + " 0 0,1 " + targetX + "," + targetY;
+    }
 
       var tspan = resPath.selectAll("text")
-          // .attr('dy', function(d) {
-          //   if (!d.dr || !d.dist) return 0;
-          //   return d.dr - d.dr * Math.cos( Math.asin( d.dist / (2 * d.dr) ) );
-          // });
+//           .attr('transform', function(d) {
+//             if (!d.h || !d.theta) {return 0;}
+//
+//             return 'translate( ' + (-d.h * Math.cos( d.theta )) + ', ' + (-d.h * Math.sin( d.theta )) + ')';
+//           });
+//
       tspan
         .filter(function(d) {
           return d.source.x > d.target.x;
         })
-          .attr("rotate", 180);
+          .attr("rotate", "180")
+          .attr("dy", "-5");
+      tspan
+        .filter(function(d) {
+          return d.source.x <= d.target.x;
+        })
+          .attr("dy", "-10");
 
-      return "M" + sourceX + "," + sourceY + "A" + dr + "," + dr + " 0 0,1 " + targetX + "," + targetY;
-    }
+//
+//       tspan
+//         .filter(function(d) {
+//           return d.source.x <= d.target.x;
+//         })
+//         .attr("rotate", 0)
+//         .attr('dy', function(d) {
+//           if (!d.h || !d.theta) {return 0;}
+//
+//           return -d.h * Math.sin( theta );
+//         });
+
   }
   var resForce = d3.layout.force()
       .nodes([])
@@ -215,7 +235,14 @@ function showSteps(log){
           var sourceIndex = path.indexOf(d.source.id),
               targetIndex = path.indexOf(d.target.id);
           return sourceIndex >=0 && targetIndex >= 0 && sourceIndex === targetIndex-1;
+        })
+        .classed('resending', function(d) {
+          if (! path) return false;
+          var sourceIndex = path.indexOf(d.source.id),
+              targetIndex = path.indexOf(d.target.id);
+          return sourceIndex >=0 && targetIndex >= 0 && sourceIndex === targetIndex-1;
         });
+
 
     flowPath.select('text')
       .select('tspan')
