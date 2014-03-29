@@ -325,7 +325,6 @@ function makeEditor(){
         
 
     // circle (node) group
-    // NB: the function arg is crucial here! nodes are known by id, not by index!
     circle = circle.data(networkGraph.nodes(), function(d) { return d.id; });
 
     circle.selectAll('text')
@@ -364,12 +363,6 @@ function makeEditor(){
       })
       .on('mousedown', function(d) {
         if(d3.event.altKey) {return}
-
-        // console.log("mouse-selected-node", d);
-        // var nfl = nodes.filter(function(n) {return d.id === n.id})[0];
-        // console.log("matching id in node list", nfl);
-        // var match = nfl === d;
-        // console.log("do the nodes match?", match);
 
         // select node
         mousedown_node = d;
@@ -542,8 +535,6 @@ function makeEditor(){
 
   function renderGraph () {
     // Flush
-    // networkGraph = new Graph([], []);
-    // restart();
 
     networkGraph = Graph.fromJSON(transcribeArea[0][0].value);
     restart();

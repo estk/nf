@@ -143,8 +143,12 @@ function showSteps(log){
           targetY = d.target.y - (targetPadding * normY);
       return "M" + sourceX + "," + sourceY + "A" + dr + "," + dr + " 0 0,1 " + targetX + "," + targetY;
     }
-
+    // resPath.select('tspan')
+    //     .filter(function(d) { return d.source.x > d.target.x })
+    //   .attr('rotate', 180)
+    //   .attr('style', 'text-anchor: start; dominant-baseline:text-before-edge;');
   }
+  
   var resForce = d3.layout.force()
       .nodes([])
       .links([])
@@ -208,7 +212,8 @@ function showSteps(log){
     flowPath.select('text')
       .select('tspan')
         .text(function(d) {
-          return d.flow || 0;
+          if (d.flow) {return d.flow + " / " + d.capacity;}
+          else {return 0 + " / " + d.capacity;}
         });
 
     flowCircle = flowCircle.data(flow.nodes(), function(n){ return n.id; });
