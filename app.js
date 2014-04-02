@@ -196,23 +196,12 @@ function makeEditor(){
       .attr('id', 'end-arrow')
       .attr('viewBox', '0 -5 10 10')
       .attr('refX', 6)
-      .attr('markerWidth', 3)
-      .attr('markerHeight', 3)
+      .attr('markerWidth', 10)
+      .attr('markerHeight', 10)
+      .attr('markerUnits', "userSpaceOnUse")
       .attr('orient', 'auto')
     .append('svg:path')
-      .attr('d', 'M0,-5L10,0L0,5')
-      .attr('fill', '#000');
-
-  defs.append('svg:marker')
-      .attr('id', 'start-arrow')
-      .attr('viewBox', '0 -5 10 10')
-      .attr('refX', 4)
-      .attr('markerWidth', 3)
-      .attr('markerHeight', 3)
-      .attr('orient', 'auto')
-    .append('svg:path')
-      .attr('d', 'M10,-5L0,0L10,5')
-      .attr('fill', '#000');
+      .attr('d', 'M0,-5L10,0L0,5');
 
   // line displayed when dragging new nodes
   var drag_line = svg.append('svg:path')
@@ -249,7 +238,7 @@ function makeEditor(){
   // update force layout (called automatically each iteration)
   function tick() {
     // draw directed edges with proper padding from node centers
-    path.select('path').attr('d', function(d) {
+    path.selectAll('path').attr('d', function(d) {
       var deltaX = d.target.x - d.source.x,
           deltaY = d.target.y - d.source.y,
           dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
@@ -280,13 +269,7 @@ function makeEditor(){
 
     // add new links
     var g = path.enter().append('g')
-      .attr('class', 'link');
-
-    g.append('svg:path')
       .attr('class', 'link')
-      .attr('id', function(d,i) {return i})
-      .classed('selected', function(d) { return d === selected_link; })
-      .style('marker-end', 'url(#end-arrow)')
       .on('mousedown', function(d) {
         if(d3.event.altKey) {return}
 
@@ -299,6 +282,15 @@ function makeEditor(){
         textBox.attr('placeholder', "New Max capacity");
         restart();
       });
+
+    g.append('svg:path')
+      .attr('class', 'link')
+      .attr('id', function(d,i) {return i})
+      .classed('selected', function(d) { return d === selected_link; })
+      .style('marker-end', 'url(#end-arrow)');
+
+    g.append("path")
+        .attr('class', 'halo');
 
     g.append('text')
       .append('textPath')
@@ -327,31 +319,45 @@ function makeEditor(){
     // circle (node) group
     circle = circle.data(networkGraph.nodes(), function(d) { return d.id; });
 
+    circle
+      .classed('selected', function(d){ return d === selected_node; });
+
     circle.selectAll('text')
-        .attr('x', 0)
         .attr('y', 4)
         .attr('class', 'id')
         .text(function(d) { return d.name; });
 
     // update existing nodes (selected visual states)
     circle.selectAll('circle')
-      .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); });
+      .style('fill', function(d) {
+        return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id);
+      });
 
     // add new nodes
-    var g = circle.enter().append('svg:g');
+    var gC = circle.enter().append('svg:g');
 
     // Add the circle where it should be.
-    g.attr('transform', function(d) {
-      if (!d.x || !d.y) return "";
-      return 'translate(' + d.x + ',' + d.y + ')';
-    });
+    gC.attr('class','node')
+        .classed('selected', function(d){ return d === selected_node })
+        .attr('transform', function(d) {
+          if (!d.x || !d.y) {return ""}
+          return 'translate(' + d.x + ',' + d.y + ')';
+        });
 
-    g.append('svg:circle')
-      .attr('class', 'node')
+    gC.append('svg:circle')
       .attr('r', 12)
-      .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
-      .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
-      .on('mouseover', function(d) {
+      .style('fill', function(d) {
+        return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id);
+      })
+      .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); });
+
+    // show node names
+    gC.append('svg:text')
+        .attr('y', 4)
+        .attr('class', 'name')
+        .text(function(d) { return d.name; });
+
+    gC.on('mouseover', function(d) {
         if(!mousedown_node || d === mousedown_node) {return}
         // enlarge target node
         d3.select(this).attr('transform', 'scale(1.1)');
@@ -407,12 +413,6 @@ function makeEditor(){
         selected_node = null;
         restart();
       });
-
-    // show node names
-    g.append('svg:text')
-        .attr('y', 4)
-        .attr('class', 'name')
-        .text(function(d) { return d.name; });
 
     // remove old nodes
     circle.exit().remove();

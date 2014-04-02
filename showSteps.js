@@ -47,7 +47,7 @@ function showSteps(log){
   // Make defs for links (arrows, etc)
   var defs = svg.append('svg:defs');
   defs.append('svg:marker')
-      .attr('id', 'end-arrow1')
+      .attr('id', 'end-arrow-flow')
       .attr('viewBox', '0 -5 10 10')
       .attr('refX', 10)
       .attr('markerWidth', 10)
@@ -58,7 +58,7 @@ function showSteps(log){
       .attr('d', 'M0,-5L10,0L0,5');
 
   defs.append('svg:marker')
-      .attr('id', 'end-arrow2')
+      .attr('id', 'end-arrow-res')
       .attr('viewBox', '0 -5 10 10')
       .attr('refX', 10)
       .attr('refY', -0.5)
@@ -182,7 +182,8 @@ function showSteps(log){
     flowLinkEnter
         .attr("class", "link")
     .append("path")
-        .attr("marker-end", "url(#end-arrow1)")
+        .attr("class", "link")
+        .attr("marker-end", "url(#end-arrow-flow)")
         .attr('id', function(d) {return 'flow' + d.source.id.toString() + '-' + d.target.id.toString();});
 
     flowLinkEnter.append('text')
@@ -217,7 +218,9 @@ function showSteps(log){
         });
 
     flowCircle = flowCircle.data(flow.nodes(), function(n){ return n.id; });
-    var flowNodeEnter = flowCircle.enter().append("g");
+    var flowNodeEnter = flowCircle.enter().append("g")
+        .attr('class', 'node');
+
     flowNodeEnter.append("circle")
         .attr("r", 10)
         .attr("fill", function(d){ return colors(d.id) });
@@ -243,7 +246,8 @@ function showSteps(log){
     resLinkEnter
         .attr("class", "link")
       .append("path")
-        .attr("marker-end", "url(#end-arrow2)")
+        .attr("class", "link")
+        .attr("marker-end", "url(#end-arrow-res)")
         .attr('id', function(d) {return 'res' + d.source.id.toString() + d.target.id.toString();});
 
     resLinkEnter.append('text')
@@ -278,14 +282,14 @@ function showSteps(log){
     
 
     resCircle = resCircle.data(residual.nodes(), function(n){ return n.id; });
-    var resNodeEnter = resCircle.enter().append("g");
+    var resNodeEnter = resCircle.enter().append("g")
+        .attr('class', 'node');
         
     resNodeEnter.append("circle")
         .attr("r", 10)
         .attr("fill", function(d){ return colors(d.id) });
 
     resNodeEnter.append("text")
-        .attr("x", 8)
         .attr('class', 'name')
         .attr('x', 0)
         .attr('y', 4)
