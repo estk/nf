@@ -222,7 +222,7 @@ function showSteps(log){
         .attr('class', 'node');
 
     flowNodeEnter.append("circle")
-        .attr("r", 10)
+        .attr('r', 12)
         .attr("fill", function(d){ return colors(d.id) })
         .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); });
 
@@ -287,7 +287,7 @@ function showSteps(log){
         .attr('class', 'node');
         
     resNodeEnter.append("circle")
-        .attr("r", 10)
+        .attr('r', 12)
         .attr("fill", function(d){ return colors(d.id) })
         .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); });
 
