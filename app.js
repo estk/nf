@@ -132,7 +132,7 @@ function makeEditor(){
   // Svg
   var svg = d3.select('body')
     .append('svg')
-    .attr('class', 'network')
+    .attr('class', 'editor')
     .attr('width', width)
     .attr('height', height);
 

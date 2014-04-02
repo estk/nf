@@ -223,7 +223,8 @@ function showSteps(log){
 
     flowNodeEnter.append("circle")
         .attr("r", 10)
-        .attr("fill", function(d){ return colors(d.id) });
+        .attr("fill", function(d){ return colors(d.id) })
+        .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); });
 
     flowNodeEnter.append("text")
         .attr("x", 8)
@@ -287,7 +288,8 @@ function showSteps(log){
         
     resNodeEnter.append("circle")
         .attr("r", 10)
-        .attr("fill", function(d){ return colors(d.id) });
+        .attr("fill", function(d){ return colors(d.id) })
+        .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); });
 
     resNodeEnter.append("text")
         .attr('class', 'name')

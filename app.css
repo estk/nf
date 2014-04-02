@@ -1,31 +1,4 @@
-path.link {
-  fill: none;
-  stroke: #666;
-  stroke-width: 2px;
-}
-.flow .link.sending path{
-  stroke-width: 3px;
-  stroke: steelblue;
-}
-.link.resending path{
-  stroke-width: 3px;
-  stroke: steelblue;
-}
-.link.sending path{
-  stroke-width: 3px;
-  stroke: steelblue;
-}
-.link.sending {
-  fill: steelblue;
-}
-.link.resending {
-  fill: brown;
-}
-
-circle {
-  stroke: #333;
-}
-
+/* === Shared === */
 body {
   text-align: center;
   text-rendering: geometricPrecision;
@@ -51,6 +24,13 @@ textarea.transcribe {
   display:block;
   margin:auto;
 }
+
+text {
+  font: 13px sans-serif;
+  pointer-events: none;
+}
+
+/* SVG Elements */
 svg {
   background-color: #FFF;
   cursor: default;
@@ -61,51 +41,71 @@ svg {
   -o-user-select: none;
   user-select: none;
 }
-svg.network:not(.active):not(.ctrl) {
-  cursor: crosshair;
-}
 
-.network .link path{
-  cursor: pointer;
+.node {
+  text-anchor: middle;
 }
-
-path.selected.link {
-  stroke-dasharray: 10,2;
-}
-path.dragline.link {
-  pointer-events: none;
-}
-
-path.hidden.link {
-  stroke-width: 0;
+.node circle {
+  stroke-width: 1.5px;
 }
 
 .link text {
   text-anchor: middle;
   dominant-baseline: text-after-edge;
 }
-
-.link .halo {
-  stroke-width: 12px !important;
-  stroke: rgba(0,0,0,0) !important;
-}
-
-.network .node circle {
-  stroke-width: 1.5px;
-  cursor: pointer;
-}
-
-.node {
-  text-anchor: middle;
-}
-
-.network .node.selected circle {
+path.link {
+  fill: none;
+  stroke: #666;
   stroke-width: 2px;
 }
 
-text {
-  font: 13px sans-serif;
+/* === Editor === */
+svg.editor:not(.active):not(.ctrl) {
+  cursor: crosshair;
+}
+
+.editor .node circle {
+  cursor: pointer;
+}
+.editor .node.selected circle {
+  stroke-width: 2px;
+}
+
+.editor .link path {
+  cursor: pointer;
+}
+.editor .link .halo {
+  stroke-width: 12px !important;
+  stroke: rgba(0,0,0,0) !important;
+}
+.editor path.selected.link {
+  stroke-dasharray: 10,2;
+}
+
+/* Dragline */
+.editor path.hidden.link {
+  stroke-width: 0;
+}
+.editor path.dragline.link {
   pointer-events: none;
 }
 
-
+/* === Show Steps === */
+.flow .link.sending path{
+  stroke-width: 3px;
+  stroke: steelblue;
+}
+.link.resending path{
+  stroke-width: 3px;
+  stroke: steelblue;
+}
+.link.sending path{
+  stroke-width: 3px;
+  stroke: steelblue;
+}
+.link.sending {
+  fill: steelblue;
+}
+.link.resending {
+  fill: brown;
+}
