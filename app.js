@@ -174,20 +174,11 @@ function makeEditor(){
       .size([width, height])
       .linkDistance(100)
       .gravity(0.1)
-      .charge(chargeF)
+      .charge(-1000)
       .linkStrength(0.05)
       .on('tick', tick);
 
-  var drag = force.drag()
-    .on("drag", dragmove);
-
-  function chargeF (d) {
-    // Source and sink should have more charge
-    if (d.name === 's' || d.name === 't') {
-      return -2000;
-    }
-    return -1000;
-  }
+  var drag = force.drag();
 
   // define arrow markers for graph links
   var defs = svg.append('svg:defs');
@@ -215,13 +206,6 @@ function makeEditor(){
       mousedown_node = null,
       mouseup_node = null;
         
-  function dragmove(d) {
-    // Dont move source, and sink
-    if (d.name === 's' || d.name === 't') {
-      d.px = d.x;
-      d.py = d.y;
-    }
-  }
 
   function resetMouseVars() {
     mousedown_node = null;
@@ -473,8 +457,12 @@ function makeEditor(){
     svg.classed('drag', false);
   }
   function fKey() {
-    if (selected_node) {
+    if (! selected_node) {return}
+
+    if (! selected_node.fixed) {
       selected_node.fixed = true;
+    } else {
+      selected_node.fixed = false;
     }
     restart();
   }
