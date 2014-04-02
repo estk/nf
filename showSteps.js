@@ -206,7 +206,7 @@ function showSteps(log){
           if (! path) {return false}
           var sourceIndex = path.indexOf(d.source.id),
               targetIndex = path.indexOf(d.target.id);
-          return sourceIndex >=0 && targetIndex >= 0 && sourceIndex === targetIndex-1;
+          return sourceIndex >=0 && targetIndex >= 0 && sourceIndex === targetIndex+1;
         });
 
 

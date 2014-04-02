@@ -93,13 +93,13 @@ svg.editor:not(.active):not(.ctrl) {
 }
 
 /* === Show Steps === */
-.flow .link.sending path{
+.link.sending path {
   stroke-width: 3px;
   stroke: steelblue;
 }
-.link.resending path{
+.link.resending path {
   stroke-width: 3px;
-  stroke: steelblue;
+  stroke: brown;
 }
 .link.sending path{
   stroke-width: 3px;
