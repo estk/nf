@@ -8,7 +8,9 @@ function showSteps(log){
 
   var index = 0;
   // Build a log viewer
-  var body = d3.select('body');
+  var body = d3.select('body')
+      .append("div")
+    .attr('class', 'app-container');
 
   var navContainer = body.append('div')
       .attr('class', 'navcontainer');
@@ -263,13 +265,13 @@ function showSteps(log){
 
     resPath
         .classed('sending', function(d) {
-          if (! path) return false;
+          if (! path) {return false}
           var sourceIndex = path.indexOf(d.source.id),
               targetIndex = path.indexOf(d.target.id);
           return sourceIndex >=0 && targetIndex >= 0 && sourceIndex === targetIndex+1;
         })
         .classed('resending', function(d) {
-          if (! path) return false;
+          if (! path) {return false}
           var sourceIndex = path.indexOf(d.source.id),
               targetIndex = path.indexOf(d.target.id);
           return sourceIndex >=0 && targetIndex >= 0 && sourceIndex === targetIndex-1;

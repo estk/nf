@@ -1,11 +1,14 @@
 function makeEditor(){
+  "use strict";
   var margin = {top: 20, right: 10, bottom: 20, left: 10};
   var width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom,
       colors = d3.scale.category20(),
       percentile = width/10;
 
-  var body = d3.select('body');
+  var body = d3.select('body')
+      .append('div')
+    .attr('class', 'app-container');
 
   // === UI ===
 
@@ -130,7 +133,7 @@ function makeEditor(){
   // === Graph ===
 
   // Svg
-  var svg = d3.select('body')
+  var svg = body
     .append('svg')
     .attr('class', 'editor')
     .attr('width', width)
@@ -391,6 +394,7 @@ function makeEditor(){
             target = mouseup_node;
 
         var link = networkGraph.addLink(source, target);
+        textBox.attr('placeholder', "New Max Capacity");
 
         // select new link
         selected_link = link;
@@ -417,6 +421,8 @@ function makeEditor(){
     // insert new node at point
     var point = d3.mouse(this),
         node = networkGraph.addNode(point);
+
+    textBox.attr('placeholder', "New Node Name");
 
     selected_link = null;
     selected_node = node;

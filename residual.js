@@ -25,7 +25,7 @@
 
     ns = ns.map(function(n) {
       var node = graph.getNode(n.id);
-      return JSON.parse( JSON.stringify(node) )
+      return JSON.parse( JSON.stringify(node) );
     });
 
     ls = ls.map(function(e){

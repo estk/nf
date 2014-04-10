@@ -1,5 +1,11 @@
 /* === Shared === */
-body {
+h1, h2, h3, h4, h5 {
+  color: brown;
+}
+a {
+  color: steelblue;
+}
+.app-container {
   text-align: center;
   text-rendering: geometricPrecision;
 }
@@ -73,12 +79,12 @@ svg.editor:not(.active):not(.ctrl) {
   stroke-width: 2px;
 }
 
-.editor .link path {
+.editor .link {
   cursor: pointer;
 }
 .editor .link .halo {
-  stroke-width: 12px !important;
-  stroke: rgba(0,0,0,0) !important;
+  stroke-width: 15px !important;
+  stroke: transparent !important;
 }
 .editor path.selected.link {
   stroke-dasharray: 10,2;
