@@ -1,10 +1,4 @@
 /* === Shared === */
-h1, h2, h3, h4, h5 {
-  color: brown;
-}
-a {
-  color: steelblue;
-}
 .app-container {
   text-align: center;
   text-rendering: geometricPrecision;

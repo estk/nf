@@ -5,7 +5,9 @@
   function Graph (nodes, links) {
     var self = this;
     this._nodes = nodes;
-    this._links = links;
+    this._lastLinkId = 0;
+    this._links = [];
+    links.forEach(function(l) { self.addLink(l) });
     // Get the max id so that the added nodes will have a unique id.
     this._lastNodeId = nodes.reduce(function( acc, x ){
       return x.id > acc ? x.id : acc;
@@ -102,15 +104,19 @@
 
   };
 
-  Graph.prototype.addLink = function (source, target) {
+  Graph.prototype.addLink = function (link) {
+    var source = link.source,
+        target = link.target;
+
     var previous = this.getLink(source, target);
 
     if (previous) {return previous}
 
-    var newLink = {source: source, target: target};
-    this._links.push( newLink );
+    link.id = Date.now().toString() + (++this._lastLinkId).toString();
 
-    return newLink;
+    this._links.push( link );
+
+    return link;
   };
   Graph.prototype.getLink = function (source, target) {
     if (!this._links) {return null}

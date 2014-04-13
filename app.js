@@ -219,7 +219,7 @@ function makeEditor(){
   // === Business Time ===
 
   // handles to link and node element groups
-  var path = svg.append('svg:g').selectAll('path'),
+  var path = svg.append('svg:g').selectAll('g'),
       circle = svg.append('svg:g').selectAll('g');
 
   // update force layout (called automatically each iteration)
@@ -252,7 +252,7 @@ function makeEditor(){
         .links(networkGraph.links());
 
     // path (link) group
-    path = path.data(networkGraph.links());
+    path = path.data(networkGraph.links(), function(d) {return d.id});
 
     // add new links
     var g = path.enter().append('g')
@@ -272,18 +272,16 @@ function makeEditor(){
 
     g.append('svg:path')
       .attr('class', 'link')
-      .attr('id', function(d,i) {return i})
+      .attr('id', function(d) {return d.id})
       .classed('selected', function(d) { return d === selected_link; })
       .style('marker-end', 'url(#end-arrow)');
 
-    g.append("path")
+    g.append("svg:path")
         .attr('class', 'halo');
 
     g.append('text')
       .append('textPath')
-        .attr('xlink:href', function (d, i) {
-          return "#" + i;
-        })
+        .attr('xlink:href', function (d) {return "#" + d.id})
         .attr('startOffset', '50%')
       .append('tspan')
         .attr('dy', -5);
@@ -304,7 +302,7 @@ function makeEditor(){
         
 
     // circle (node) group
-    circle = circle.data(networkGraph.nodes(), function(d) { return d.id; });
+    circle = circle.data(networkGraph.nodes(), function(d) {return d.id});
 
     circle
       .classed('selected', function(d){ return d === selected_node; });
@@ -347,12 +345,12 @@ function makeEditor(){
     gC.on('mouseover', function(d) {
         if(!mousedown_node || d === mousedown_node) {return}
         // enlarge target node
-        d3.select(this).attr('transform', 'scale(1.1)');
+        d3.select(this).select('circle').transition().attr('transform', 'scale(1.1)');
       })
       .on('mouseout', function(d) {
         if(!mousedown_node || d === mousedown_node) {return}
         // unenlarge target node
-        d3.select(this).attr('transform', '');
+        d3.select(this).select('circle').transition().attr('transform', '');
       })
       .on('mousedown', function(d) {
         if(d3.event.altKey) {return}
@@ -386,14 +384,14 @@ function makeEditor(){
         if(mouseup_node === mousedown_node) { resetMouseVars(); return; }
 
         // unenlarge target node
-        d3.select(this).attr('transform', '');
+        d3.select(this).select('circle').transition().attr('transform', '');
 
         // add link to graph (update if exists)
         // NB: links are strictly source < target; arrows separately specified by booleans
         var source = mousedown_node,
             target = mouseup_node;
 
-        var link = networkGraph.addLink(source, target);
+        var link = networkGraph.addLink({source: source, target: target});
         textBox.attr('placeholder', "New Max Capacity");
 
         // select new link
