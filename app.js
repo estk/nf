@@ -428,7 +428,7 @@ function makeEditor(){
   }
 
   function mousemove() {
-    if (!mousedown_node) {return}
+    if (! mousedown_node) {return}
 
     drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
     restart();
