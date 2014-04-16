@@ -6,9 +6,22 @@ function makeEditor(){
       colors = d3.scale.category20(),
       percentile = width/10;
 
+
+  window.onpopstate = function(e) {
+    if (e.target.location.pathname === "/") {
+      e.preventDefault();
+      makeEditor();
+    } else if (e.target.location.pathname === "/flowview") {
+      e.preventDefault();
+      flowView();
+    }
+  };
+
+
+  d3.select('#app-container').remove();
   var body = d3.select('body')
       .append('div')
-    .attr('class', 'app-container');
+    .attr('id', 'app-container');
 
   // === UI ===
 
@@ -68,18 +81,19 @@ function makeEditor(){
       .attr("name", "showSteps")
       .attr("type", "button")
       .text("Show Steps")
-      .on('click', makeShowSteps);
+      .on('click', makeFlowView);
 
-  function makeShowSteps() {
+  function makeFlowView() {
+    var url = '/flowview';
+    window.history.pushState(null,null, url);
     // perform ford fulkerson
     var res = fordFulkerson(networkGraph.nodes(), networkGraph.links()),
         finalFlow = res[0],
         log = res[1];
 
-    body.html('');
     window.networkGraph = networkGraph;
 
-    showSteps(log);
+    flowView(log);
   }
 
   function textboxHandler() {
@@ -344,7 +358,7 @@ function makeEditor(){
 
     gC.on('mouseover', function(d) {
         if(!mousedown_node || d === mousedown_node) {return}
-        // enlarge target node
+        // e.target target node
         d3.select(this).select('circle').transition().attr('transform', 'scale(1.1)');
       })
       .on('mouseout', function(d) {
