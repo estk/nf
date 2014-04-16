@@ -1,16 +1,27 @@
-function showSteps(log){
+function flowView(log){
   "use strict";
+
   var margin = {top: 20, right: 10, bottom: 20, left: 10};
   var width = 960 - margin.left - margin.right,
       height = 800 - margin.top - margin.bottom,
       colors = d3.scale.category20(),
       percentile = width/10;
 
+  window.onpopstate = function(e) {
+    if (e.target.location.pathname === "/") {
+      e.preventDefault();
+      makeEditor();
+    } else if (e.target.location.pathname === "/flowview") {
+      e.preventDefault();
+      makeShowSteps();
+    }
+  };
   var index = 0;
   // Build a log viewer
+  d3.select('#app-container').remove();
   var body = d3.select('body')
       .append("div")
-    .attr('class', 'app-container');
+    .attr('id', 'app-container');
 
   var navContainer = body.append('div')
       .attr('class', 'navcontainer');
@@ -22,7 +33,7 @@ function showSteps(log){
       .attr("style", "display:block; margin:auto;")
       .text("Editor")
       .on('click', function() {
-        body.html("");
+        window.history.pushState(null,null,'/');
         makeEditor();
       });
 
