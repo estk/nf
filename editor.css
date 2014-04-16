@@ -32,6 +32,7 @@ text {
 
 /* SVG Elements */
 svg {
+  shape-rendering: geometricPrecision;
   background-color: #FFF;
   cursor: default;
   border: solid;
@@ -70,7 +71,7 @@ svg.editor:not(.active):not(.ctrl) {
   cursor: pointer;
 }
 .editor .node.selected circle {
-  stroke-width: 2px;
+  stroke-width: 2.5px;
 }
 
 .editor .link {
