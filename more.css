@@ -1,0 +1,25 @@
+@import 'editor.css';
+
+#container {
+  width: 80%;
+  margin: auto;
+}
+h1, h2, h3, h4, h5 {
+  color: brown;
+}
+a {
+  color: steelblue;
+}
+
+.svg-container {
+  text-align: center;
+}
+
+/* Make the cursor imply that the svg is static */
+svg {
+  cursor: default !important;
+}
+svg circle,path {
+  cursor: default !important;
+}
+
