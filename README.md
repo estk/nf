@@ -9,8 +9,6 @@ The inspiration for the digraph logic originally came from [rkirsling](http://rk
 
 This project is an attempt to make the solutions to network flow problems accessible the general public. This project uses the Ford-Fulkerson algorithm to calculate the max flow. Special thanks to [Dimitris Achilloptas](http://users.soe.ucsc.edu/~optas/) for the introduction to such a great algorithm!
 
-For more information see [more info](/more.html).
-
 TODO:
-- Multi-Edge Selection?
-- Linear gravitation points?
+* Multi-Edge Selection?
+* Linear gravitation points?
