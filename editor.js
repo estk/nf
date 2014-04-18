@@ -1,3 +1,14 @@
+  window.homePath = window.location.pathname;
+  window.onpopstate = function(e) {
+    if (e.target.location.pathname === homePath) {
+      e.preventDefault();
+      makeEditor();
+    } else if (e.target.location.pathname === "/flowview") {
+      e.preventDefault();
+      flowView();
+    }
+  };
+
 function makeEditor(){
   "use strict";
   var margin = {top: 20, right: 10, bottom: 20, left: 10};
@@ -6,16 +17,6 @@ function makeEditor(){
       colors = d3.scale.category20(),
       percentile = width/10;
 
-
-  window.onpopstate = function(e) {
-    if (e.target.location.pathname === "/") {
-      e.preventDefault();
-      makeEditor();
-    } else if (e.target.location.pathname === "/flowview") {
-      e.preventDefault();
-      flowView();
-    }
-  };
 
 
   d3.select('#app-container').remove();
@@ -27,7 +28,9 @@ function makeEditor(){
 
   // TextBox
   var textBox = body.append('textarea')
+      .attr('class', 'dialog')
       .onKey('return', textboxHandler);
+
 
   // MaxFlow
   var maxFlow = body.append('div')
@@ -91,9 +94,10 @@ function makeEditor(){
         finalFlow = res[0],
         log = res[1];
 
+    window.log = log;
     window.networkGraph = networkGraph;
 
-    flowView(log);
+    flowView();
   }
 
   function textboxHandler() {
@@ -131,6 +135,7 @@ function makeEditor(){
 
     // Changing Edge Capacity
     } else if (selected_link) {
+      resetFlow();
       var newCap = parseInt(contents, null);
       if (isNaN(newCap)) {
         alert("Please enter a number");
@@ -535,9 +540,20 @@ function makeEditor(){
       .text("Render")
       .on('click', renderGraph);
 
+  window.autoBoxResize = function () {
+    var preHeight = this.style.height;
+    this.style.height = 0;
+    var height = this.scrollHeight;
+    this.style.height = preHeight;
+    d3.select(this)
+      .transition()
+        .attr('style', 'height:' + height + 'px');
+  };
+
   var transcribeArea = body.append('textarea')
       .attr('class', 'transcribe')
-      .onKey('return', renderGraph);
+      .on('keyup', autoBoxResize)
+      .on('mousedown', autoBoxResize);
 
   function renderGraph () {
     // Flush

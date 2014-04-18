@@ -1,4 +1,4 @@
-function flowView(log){
+function flowView(){
   "use strict";
 
   var margin = {top: 20, right: 10, bottom: 20, left: 10};
@@ -7,15 +7,6 @@ function flowView(log){
       colors = d3.scale.category20(),
       percentile = width/10;
 
-  window.onpopstate = function(e) {
-    if (e.target.location.pathname === "/") {
-      e.preventDefault();
-      makeEditor();
-    } else if (e.target.location.pathname === "/flowview") {
-      e.preventDefault();
-      makeShowSteps();
-    }
-  };
   var index = 0;
   // Build a log viewer
   d3.select('#app-container').remove();
@@ -33,7 +24,9 @@ function flowView(log){
       .attr("style", "display:block; margin:auto;")
       .text("Editor")
       .on('click', function() {
-        window.history.pushState(null,null,'/');
+        var loc = window.location.href,
+            editor = loc.split('flowview')[0];
+        window.history.pushState(null,null,editor);
         makeEditor();
       });
 
@@ -194,7 +187,7 @@ function flowView(log){
 
     flowLinkEnter
         .attr("class", "link")
-    .append("path")
+      .append("path")
         .attr("class", "link")
         .attr("marker-end", "url(#end-arrow-flow)")
         .attr('id', function(d) {return 'flow' + d.source.id.toString() + '-' + d.target.id.toString();});
@@ -232,7 +225,11 @@ function flowView(log){
 
     flowCircle = flowCircle.data(flow.nodes(), function(n){ return n.id; });
     var flowNodeEnter = flowCircle.enter().append("g")
-        .attr('class', 'node');
+        .attr('class', 'node')
+        .attr('transform', function(d) {
+          if (!d.x || !d.y) {return ""}
+          return 'translate(' + d.x + ',' + d.y + ')';
+        });
 
     flowNodeEnter.append("circle")
         .attr('r', 12)
@@ -297,7 +294,11 @@ function flowView(log){
 
     resCircle = resCircle.data(residual.nodes(), function(n){ return n.id; });
     var resNodeEnter = resCircle.enter().append("g")
-        .attr('class', 'node');
+        .attr('class', 'node')
+        .attr('transform', function(d) {
+          if (!d.x || !d.y) {return ""}
+          return 'translate(' + d.x + ',' + d.y + ')';
+        });
         
     resNodeEnter.append("circle")
         .attr('r', 12)
