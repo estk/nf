@@ -1,4 +1,7 @@
 /* === Shared === */
+a {
+  color: steelblue;
+}
 #app-container {
   text-align: center;
   text-rendering: geometricPrecision;

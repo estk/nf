@@ -9,6 +9,14 @@
     }
   };
 
+  d3.select('body')
+    .append('a')
+      .attr('href', '/more.html')
+    .append('h3')
+      .attr('style', 'text-align:center;')
+      .text('What is this?');
+
+
 function makeEditor(){
   "use strict";
   var margin = {top: 20, right: 10, bottom: 20, left: 10};
@@ -18,11 +26,11 @@ function makeEditor(){
       percentile = width/10;
 
 
-
   d3.select('#app-container').remove();
   var body = d3.select('body')
       .append('div')
     .attr('id', 'app-container');
+
 
   // === UI ===
 
