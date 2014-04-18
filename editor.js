@@ -1,3 +1,14 @@
+  window.homePath = window.location.pathname;
+  window.onpopstate = function(e) {
+    if (e.target.location.pathname === homePath) {
+      e.preventDefault();
+      makeEditor();
+    } else if (e.target.location.pathname === "/flowview") {
+      e.preventDefault();
+      flowView();
+    }
+  };
+
 function makeEditor(){
   "use strict";
   var margin = {top: 20, right: 10, bottom: 20, left: 10};
@@ -6,16 +17,6 @@ function makeEditor(){
       colors = d3.scale.category20(),
       percentile = width/10;
 
-
-  window.onpopstate = function(e) {
-    if (e.target.location.pathname === "/") {
-      e.preventDefault();
-      makeEditor();
-    } else if (e.target.location.pathname === "/flowview") {
-      e.preventDefault();
-      flowView();
-    }
-  };
 
 
   d3.select('#app-container').remove();
@@ -93,9 +94,10 @@ function makeEditor(){
         finalFlow = res[0],
         log = res[1];
 
+    window.log = log;
     window.networkGraph = networkGraph;
 
-    flowView(log);
+    flowView();
   }
 
   function textboxHandler() {
