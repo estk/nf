@@ -8,12 +8,15 @@ textarea {
   display:block;
   margin: auto;
 }
+textarea.dialog {
+  height: 2em;
+}
 textarea.transcribe {
   text-align: left;
   display: block;
   margin: auto;
   width: 80%;
-  height: 400px;
+  height: 1em;
 }
 .transbtncontainer, .solvebtncontainer {
   display:table;

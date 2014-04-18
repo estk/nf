@@ -27,7 +27,9 @@ function makeEditor(){
 
   // TextBox
   var textBox = body.append('textarea')
+      .attr('class', 'dialog')
       .onKey('return', textboxHandler);
+
 
   // MaxFlow
   var maxFlow = body.append('div')
@@ -131,6 +133,7 @@ function makeEditor(){
 
     // Changing Edge Capacity
     } else if (selected_link) {
+      resetFlow();
       var newCap = parseInt(contents, null);
       if (isNaN(newCap)) {
         alert("Please enter a number");
@@ -535,9 +538,20 @@ function makeEditor(){
       .text("Render")
       .on('click', renderGraph);
 
+  window.autoBoxResize = function () {
+    var preHeight = this.style.height;
+    this.style.height = 0;
+    var height = this.scrollHeight;
+    this.style.height = preHeight;
+    d3.select(this)
+      .transition()
+        .attr('style', 'height:' + height + 'px');
+  };
+
   var transcribeArea = body.append('textarea')
       .attr('class', 'transcribe')
-      .onKey('return', renderGraph);
+      .on('keyup', autoBoxResize)
+      .on('mousedown', autoBoxResize);
 
   function renderGraph () {
     // Flush
