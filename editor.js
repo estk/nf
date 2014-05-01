@@ -11,7 +11,7 @@
 
   d3.select('body')
     .append('a')
-      .attr('href', '/more.html')
+      .attr('href', 'more.html')
     .append('h3')
       .attr('style', 'text-align:center;')
       .text('What is this?');
