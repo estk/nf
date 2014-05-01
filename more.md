@@ -114,7 +114,9 @@ Pretty simple stuff, and again for proof see the text or slides.
 
 ## Applications
 
-Now we're talking! So far, I bet this has seemed really specific to a network of pipes and fluid. But hopefully you can see how it would translate to other situations such as cars moving from one place to another through a network of street. Let's take it one step further in abstraction for our first application problem, lets see if we can apply this to a quality control problem. (Credit again goes to Kleinberg and Tardos for this problem.)
+Now we're talking! So far, I bet this has seemed specific to a network of pipes and fluid. Hopefully though, you can see how it would translate to other situations. (For example, cars moving from one place to another through a network of streets.) Let's take it one step further though for our first application problem, lets see if we can apply this to a quality control problem. (Credit again goes to Kleinberg and Tardos for this problem.)
+
+- TODO
 
 
 
